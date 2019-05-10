@@ -1,0 +1,62 @@
+{
+  "name": "squarelink-web3",
+  "version": "1.0.0",
+  "description": "Squarelink's Web3 library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/theAlexPatin/Squarelink-Web3.git"
+  },
+  "keywords": [
+    "web3",
+    "web3.js",
+    "ethereum",
+    "squarelink",
+    "blockchain",
+    "dapp",
+    "dapps",
+    "cryptocurrency"
+  ],
+  "author": "Alexander Patin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/theAlexPatin/Squarelink-Web3/issues"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "homepage": "https://github.com/theAlexPatin/Squarelink-Web3#readme",
+  "dependencies": {
+    "penpal": "^4.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.0.20",
+    "babel-plugin-root-import": "^6.1.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-regenerator": "^6.26.0",
+    "babel-polyfill": "^6.1.4",
+    "babel-preset-stage-0": "^6.0.15",
+    "babel-preset-es2015": "^6.0.15",
+    "babel-preset-latest": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "concurrently": "^4.0.1",
+    "nodemon": "^1.17.5",
+    "rimraf": "^2.6.2"
+  }
+}
