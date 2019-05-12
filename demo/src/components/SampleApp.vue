@@ -4,10 +4,18 @@
     <a href="javascript:void(0)" @click="getAccounts">
       <img src="https://squarelink.com/img/sign-in.svg" width="240"/>
     </a>
-    <p>{{result}}</p>
+
     <a href="javascript:void(0)" @click="signTx">
       <img src="https://squarelink.com/img/sign-tx.svg" width="240"/>
     </a>
+
+    <a href="javascript:void(0)" @click="signMsg">
+      <img src="https://squarelink.com/img/sign-msg.svg" width="240"/>
+    </a>
+
+    <a href="javascript:void(0)" @click="getCoinbase">Get Coinbase</a>
+
+    <p>{{result}}</p>
 
   </div>
 </template>
@@ -31,14 +39,22 @@ export default {
   },
   methods: {
     async getAccounts() {
-      this.result = await this.sqlk.getAddresses()
+      this.result = await this.sqlk.getAccounts()
     },
     async signTx() {
       this.result = await this.sqlk.signTx({
         to: '0xf40bed2ffee76b5517fc992cc798ece4c55d8f99',
-        value: '100000',
-        data: '0x0000abcdef0000abcdef0000abcdef0000abcdef0000abcdef0000abcdef0000abcdef'
+        value: '1000000000000',
       })
+    },
+    async signMsg() {
+      this.result = await this.sqlk.signMsg({
+        method: 'eth_signMessage',
+        message: 'Hello, my name is Alex'
+      })
+    },
+    async getCoinbase() {
+      this.result = await this.sqlk.getCoinbase()
     }
   }
 }
@@ -61,6 +77,10 @@ export default {
 }
 .category{
   text-align: left;
+}
+
+a {
+  display: block;
 }
 
 p {

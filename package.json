@@ -41,7 +41,8 @@
   },
   "homepage": "https://github.com/theAlexPatin/Squarelink-Web3#readme",
   "dependencies": {
-    "penpal": "^4.0.0"
+    "penpal": "^4.0.0",
+    "urlencode": "^1.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
