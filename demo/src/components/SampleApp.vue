@@ -10,7 +10,7 @@
     </a>
 
     <a href="javascript:void(0)" @click="signMsg">
-      <img src="https://squarelink.com/img/sign-msg.svg" width="240"/>
+      <img src="https://squarelink.com/img/sign-msg.svg?v=3" width="240"/>
     </a>
 
     <a href="javascript:void(0)" @click="getCoinbase">Get Coinbase</a>

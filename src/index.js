@@ -1,5 +1,4 @@
-/* eslint-disable */
-import axios from 'axios'
+const http = process.env.NODE_ENV==='production' ? require('https') : require('http')
 
 const API_ENDPOINT = `http://localhost:3007`
 
@@ -31,6 +30,25 @@ const _popup = function(url) {
   })
 }
 
+const _request = function(method='GET', url, params) {
+  return new Promise((resolve, reject) => {
+    if (method === 'GET') {
+      http.get(`${url}?${_serialize(params)}`, (res) => {
+        let data = ''
+        res.on('data', (chunk) => {
+          data += chunk
+          console.log(data)
+        })
+        res.on('end', () => {
+          resolve(JSON.parse(data))
+        })
+      }).on('error', (err) => {
+        reject(err)
+      })
+    }
+  })
+}
+
 export default class Squarelink {
   constructor(client_id, network = 'mainnet', options = {}) {
     this.client_id = client_id
@@ -57,11 +75,7 @@ export default class Squarelink {
       } else {
         let url = `${APP_URL}/authorize?client_id=${this.client_id}&scope=[wallets:read]&response_type=token&widget=true`
         let access_token = (await _popup(url)).result
-        axios.get(`${API_ENDPOINT}/wallets`, {
-          params: {
-            access_token
-          }
-        }).then(({ data }) => {
+        _request('GET', `${API_ENDPOINT}/wallets`, { access_token }).then((data) => {
           let accounts = data.wallets.map(w => w.address)
           this.accounts = accounts
           resolve(accounts)

@@ -1,25 +1,7 @@
 {
-  "presets": [
-    [
-      "es2015",
-      "stage-0"
-    ]
-  ],
+  "presets": ["env"],
   "plugins": [
-    "transform-object-rest-spread",
-    "transform-class-properties",
-    "syntax-async-functions",
-    "transform-regenerator",
-    [
-      "babel-plugin-root-import",
-      {
-        "paths": [{
-          "rootPathPrefix": "@",
-          "rootPathSuffix": "src"
-        }, {
-          "rootPathPrefix": "~"
-        }]
-      }
-    ]
+    "transform-flow-strip-types",
+    "babel-plugin-rewire"
   ]
 }
