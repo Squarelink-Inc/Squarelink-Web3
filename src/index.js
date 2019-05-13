@@ -1,8 +1,8 @@
 const http = process.env.NODE_ENV==='production' ? require('https') : require('http')
 
-const API_ENDPOINT = `http://localhost:3007`
+const API_ENDPOINT = process.env.NODE_ENV==='production' ? `https://api.squarelink.com` : `http://localhost:3007`
 
-const APP_URL = `http://localhost:8082`
+const APP_URL = process.env.NODE_ENV==='production' ? `https://app.squarelink.com` : `http://localhost:8082`
 
 const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=450,height=700,left=-500,top=150`
 

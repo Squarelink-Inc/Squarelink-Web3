@@ -2,6 +2,7 @@ import babel from 'rollup-plugin-babel'
 import resolve from 'rollup-plugin-node-resolve'
 import commonJS from 'rollup-plugin-commonjs'
 import json from 'rollup-plugin-json'
+import { terser } from 'rollup-plugin-terser'
 
 // list of plugins used during building process
 const plugins = targets => ([
@@ -23,7 +24,8 @@ const plugins = targets => ([
   commonJS({
     include: 'node_modules/**'
   }),
-  json()
+  json(),
+  terser()
 ])
 
 // packages that should be treated as external dependencies, not bundled
