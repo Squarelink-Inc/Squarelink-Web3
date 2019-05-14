@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { _popup, _serialize } from './util'
+import { _popup, _serialize, _hexToUtf8 } from './util'
 import { SqlkError } from './error'
 import { APP_URL, API_ENDPOINT, VERSION } from './config'
 
@@ -11,21 +11,28 @@ export const _getAccounts = function (client_id) {
     _popup(url).then(({ error, result }) => {
       if (error) reject(new SqlkError(error))
       fetch(`${API_ENDPOINT}/wallets?${_serialize({ access_token: result })}`).then(async (data) => {
-        let accounts = (await data.json()).wallets.map(w => w.address)
-        resolve(accounts)
+        data = await data.json()
+        if (!data.success) reject(new SqlkError(data.message || 'Issue fetching accounts, try again later'))
+        else resolve(data.wallets.map(w => w.address))
       })
     })
   })
 }
 
-export const _signMessage = async function ({ message, params, method }) {
-  let url = `${APP_URL}/msg?client_id=560346b97085cb98cdc9&method=${method || 'signMessage'}&version=${VERSION}`
+export const _signMsg = async function ({ client_id, message, params, method, account }) {
+  message = _hexToUtf8(message)
+  let url = `${APP_URL}/msg?client_id=${client_id}&method=${method || 'signMessage'}&version=${VERSION}`
+  if (account)
+    url = `${url}&account=${account}`
   if (method === 'signTypedMessage') {
     url = `${url}&params=${_serialize(params)}`
   } else {
     url = `${url}&msg=${message}`
   }
-  return (await _popup(url)).result
+  return _popup(url).then(({ error, result }) => {
+    if (error) throw new SqlkError(error)
+    return Promise.resolve(result)
+  })
 }
 
 export const _signTx = async function ({

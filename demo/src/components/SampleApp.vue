@@ -40,6 +40,8 @@ export default {
     async getAccounts() {
       window.web3.eth.getAccounts().then(accounts => {
         this.result = accounts
+      }).catch(err => {
+        console.log(err)
       })
     },
     async signTx() {
@@ -49,16 +51,19 @@ export default {
         value: '1000000000',
       }).then(txHex => {
         this.result = txHex
+      }).catch(err => {
+        console.log(err)
       })
     },
     async signMsg() {
-      this.result = await this.sqlk.signMsg({
-        method: 'eth_signMessage',
-        message: 'Hello, my name is Alex'
+      this.result = await window.web3.eth.sign('Hello, my name is Alex', '0xc919ac3f8e6ff03349e472d501606fefee300028').catch(err => {
+        console.log(err)
       })
     },
     async getCoinbase() {
-      this.result = await window.web3.eth.getCoinbase()
+      this.result = await window.web3.eth.getCoinbase().catch(err => {
+        console.log(err)
+      })
     }
   }
 }

@@ -65,12 +65,20 @@ export default class Squarelink {
               .then(res => end(null, res))
               .catch(err => end(err, null))
             break
-
+          case 'eth_sign':
+            _signMsg({
+              client_id: self.client_id,
+              method: 'signMessage',
+              message: payload.params[1],
+              account: payload.params[0],
+            })
+              .then(res => end(null, res))
+              .catch(err => end(err, null))
+            break
           default:
             next()
             break
         }
-
       },
     })
 
@@ -98,16 +106,6 @@ export default class Squarelink {
       getCoinbase: async function(cb) {
         this.getAccounts()
           .then((accounts) => cb(null, accounts[0]))
-          .catch(err => cb(err, null))
-      },
-      signTransaction: function(params, cb) {
-        _signTx({
-          ...params,
-          method: 'signTransaction',
-          client_id: self.client_id,
-          network: self.network
-        })
-          .then(hex => cb(null, hex))
           .catch(err => cb(err, null))
       }
     }))

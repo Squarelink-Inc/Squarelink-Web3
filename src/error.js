@@ -2,7 +2,7 @@
 
 export class SqlkError extends Error {
   constructor(msg) {
-    super('Squarelink: ' + msg)
+    super(msg)
     this.name = 'SquarelinkError'
   }
 }
