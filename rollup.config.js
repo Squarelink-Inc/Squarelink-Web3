@@ -3,6 +3,8 @@ import resolve from 'rollup-plugin-node-resolve'
 import commonJS from 'rollup-plugin-commonjs'
 import json from 'rollup-plugin-json'
 import { terser } from 'rollup-plugin-terser'
+import replace from 'rollup-plugin-replace'
+import builtins from 'rollup-plugin-node-builtins'
 
 // list of plugins used during building process
 const plugins = targets => ([
@@ -25,7 +27,14 @@ const plugins = targets => ([
     include: 'node_modules/**'
   }),
   json(),
-  terser()
+  terser(),
+  replace({
+    exclude: 'node_modules/**',
+    values: {
+      ENV: 'production'
+    }
+  }),
+  builtins()
 ])
 
 // packages that should be treated as external dependencies, not bundled

@@ -23,9 +23,7 @@
 <script>
 /* eslint-disable */
 import Squarelink from '../../../src/index'
-//import Web3 from 'web3'
-
-//window.web3 = new Web3(sqlk.getProvider())
+import Web3 from 'web3'
 
 export default {
   name: 'HelloWorld',
@@ -35,16 +33,22 @@ export default {
     }
   },
   mounted() {
-    this.sqlk = new Squarelink('560346b97085cb98cdc9')
+    var sqlk = new Squarelink('560346b97085cb98cdc9', 'ropsten')
+    window.web3 = new Web3(sqlk.getProvider())
   },
   methods: {
     async getAccounts() {
-      this.result = await this.sqlk.getAccounts()
+      window.web3.eth.getAccounts().then(accounts => {
+        this.result = accounts
+      })
     },
     async signTx() {
-      this.result = await this.sqlk.signTx({
+      window.web3.eth.signTransaction({
         to: '0xf40bed2ffee76b5517fc992cc798ece4c55d8f99',
-        value: '1000000000000',
+        from: '0xc919ac3f8e6ff03349e472d501606fefee300028',//await window.web3.eth.getCoinbase(),
+        value: '1000000000',
+      }).then(txHex => {
+        this.result = txHex
       })
     },
     async signMsg() {
@@ -54,7 +58,7 @@ export default {
       })
     },
     async getCoinbase() {
-      this.result = await this.sqlk.getCoinbase()
+      this.result = await window.web3.eth.getCoinbase()
     }
   }
 }

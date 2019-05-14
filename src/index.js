@@ -1,102 +1,126 @@
-const http = process.env.NODE_ENV==='production' ? require('https') : require('http')
-
-const API_ENDPOINT = process.env.NODE_ENV==='production' ? `https://api.squarelink.com` : `http://localhost:3007`
-
-const APP_URL = process.env.NODE_ENV==='production' ? `https://app.squarelink.com` : `http://localhost:8082`
-
-const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=450,height=700,left=-500,top=150`
-
-const _serialize = function(obj) {
-  var str = []
-  for (var p in obj)
-    if (obj.hasOwnProperty(p)) {
-      str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]))
-    }
-  return str.join('&')
-}
-
-const _popup = function(url) {
-  return new Promise((resolve, reject) => {
-    const popup = window.open(url, 'Squarelink', POPUP_PARAMS)
-    popup.focus()
-    let self = this
-    window.addEventListener('message', function(e) {
-      if (e.data.origin === 'squarelink') {
-        popup.close()
-        window.removeEventListener('message', function() {})
-        resolve({ ...e.data, origin: undefined })
-      }
-    }, false)
-  })
-}
-
-const _request = function(method='GET', url, params) {
-  return new Promise((resolve, reject) => {
-    if (method === 'GET') {
-      http.get(`${url}?${_serialize(params)}`, (res) => {
-        let data = ''
-        res.on('data', (chunk) => {
-          data += chunk
-          console.log(data)
-        })
-        res.on('end', () => {
-          resolve(JSON.parse(data))
-        })
-      }).on('error', (err) => {
-        reject(err)
-      })
-    }
-  })
-}
+/* eslint-disable */
+import ProviderEngine from 'web3-provider-engine'
+import CacheSubprovider from 'web3-provider-engine/subproviders/cache'
+import FixtureSubprovider from 'web3-provider-engine/subproviders/fixture'
+import FilterSubprovider from 'web3-provider-engine/subproviders/filters'
+import VmSubprovider from 'web3-provider-engine/subproviders/vm'
+import HookedWalletSubprovider from 'web3-provider-engine/subproviders/hooked-wallet'
+import NonceSubprovider from 'web3-provider-engine/subproviders/nonce-tracker'
+import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
+import {
+  _serialize,
+  _validateParams,
+  _getRPCEndpoint
+} from './util'
+import {
+  API_ENDPOINT,
+  APP_URL
+} from './config'
+import {
+  _getAccounts,
+  _signTx,
+  _signMsg
+} from './walletMethods'
+import { SqlkError } from './error'
 
 export default class Squarelink {
-  constructor(client_id, network = 'mainnet', options = {}) {
+  constructor(client_id, network='mainnet') {
     this.client_id = client_id
-    this.network = network || 'mainnet'
-    this.options = options
+    _validateParams({ client_id, network })
+    this.network = network
+    this.rpcEndpoint = _getRPCEndpoint({ client_id, network })
+    this._initEngine()
+    this.defaultAccount = 'wjdialjdwil'
   }
 
-  getCoinbase() {
-    return new Promise(async (resolve, reject) => {
-      if (this.accounts) {
-        resolve(this.accounts[0])
-      } else {
-        this.getAccounts().then(accounts => {
-          resolve(accounts[0])
-        }).catch(err => reject(err))
-      }
+  getProvider() {
+    return this.engine
+  }
+
+  _initEngine() {
+    var self = this
+    var engine = new ProviderEngine()
+
+    engine.addProvider({
+      setEngine: _ => _,
+      handleRequest: async (payload, next, end) => {
+        switch(payload.method) {
+          case 'eth_signTransaction':
+            _signTx({
+              ...payload.params[0],
+              method: 'signTransaction',
+              client_id: self.client_id,
+              network: self.network
+            })
+              .then(res => end(null, res))
+              .catch(err => end(err, null))
+            break
+          case 'eth_sendTransaction':
+            _signTx({
+              ...payload.params[0],
+              method: 'sendTransaction',
+              client_id: self.client_id,
+              network: self.network
+            })
+              .then(res => end(null, res))
+              .catch(err => end(err, null))
+            break
+
+          default:
+            next()
+            break
+        }
+
+      },
     })
-  }
 
-  getAccounts() {
-    return new Promise(async (resolve, reject) => {
-      if (this.accounts) {
-        resolve(this.accounts)
-      } else {
-        let url = `${APP_URL}/authorize?client_id=${this.client_id}&scope=[wallets:read]&response_type=token&widget=true`
-        let access_token = (await _popup(url)).result
-        _request('GET', `${API_ENDPOINT}/wallets`, { access_token }).then((data) => {
-          let accounts = data.wallets.map(w => w.address)
-          this.accounts = accounts
-          resolve(accounts)
+    engine.addProvider(new FixtureSubprovider({
+      web3_clientVersion: 'Squarelink/v0.0.1/javascript',
+      net_listening: true,
+      eth_hashrate: '0x00',
+      eth_mining: false,
+      eth_syncing: true,
+    }))
+    engine.addProvider(new CacheSubprovider())
+    engine.addProvider(new FilterSubprovider())
+    engine.addProvider(new NonceSubprovider())
+    engine.addProvider(new VmSubprovider())
+    engine.addProvider(new HookedWalletSubprovider({
+      getAccounts: async function(cb){
+        if (self.accounts) cb(null, self.accounts)
+        else {
+          _getAccounts(self.client_id).then(accounts => {
+            self.accounts = accounts
+            cb(null, accounts)
+          }).catch(err => cb(err, null))
+        }
+      },
+      getCoinbase: async function(cb) {
+        this.getAccounts()
+          .then((accounts) => cb(null, accounts[0]))
+          .catch(err => cb(err, null))
+      },
+      signTransaction: function(params, cb) {
+        _signTx({
+          ...params,
+          method: 'signTransaction',
+          client_id: self.client_id,
+          network: self.network
         })
+          .then(hex => cb(null, hex))
+          .catch(err => cb(err, null))
       }
+    }))
+
+    engine.addProvider(new RpcSubprovider({
+      rpcUrl: this.rpcEndpoint,
+    }))
+
+    engine.on('error', function(err){
+      console.error(err.stack)
     })
-  }
+    engine.start()
 
-  async signMsg({ message, params, method }) {
-    let url = `${APP_URL}/msg?client_id=560346b97085cb98cdc9&method=${method || 'signMessage'}`
-    if (method === 'signTypedMessage') {
-      url = `${url}&params=${_serialize(params)}`
-    } else {
-      url = `${url}&msg=${message}`
-    }
-    return (await _popup(url)).result
-  }
-
-  async signTx({ value, to, data }) {
-    let url = `${APP_URL}/tx?widget=true&method=eth_signTransaction&client_id=${this.client_id}&to=${to}&value=${value || '0'}`
-    if (data) url = `${url}&data=${data}`
-    return (await _popup(url)).result
+    this.engine = engine
   }
 }
