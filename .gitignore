@@ -16,6 +16,8 @@ lib-cov
 
 demo
 
+.DS_Store
+
 # Coverage directory used by tools like istanbul
 coverage
 
