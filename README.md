@@ -41,6 +41,31 @@ const web3 = new Web3(sqlk.getProvider())
 web3.eth.getAccounts().then(console.log)
 ```
 
+### Configuration
+
+`const sqlk = new Squarelink(clientId [, network])`
+
+`Squarelink`-`Object` - Initializes a Squarelink Web3 Provider for you
+
+- `clientId`-`String` - The Client ID provided to you when you register your DApp in the **[Squarelink Developer Console](https://dev.squarelink.com)**
+
+- `network`-`String|Object` - Configures the RPC node you're connecting to. Read **[the docs](https://squarelink.com/docs)** for more info. Defaults to 'mainnet'.
+
+#### Examples
+
+```
+// connect to the Ropsten network
+new Squarelink('<CLIENT ID>', 'ropsten')
+```
+```
+// connect to a custom private network
+new Squarelink('<CLIENT ID>', {
+  url: 'https://localhost:8545',
+  chainId: 420
+})
+```
+
+
 ## Documentation
 
 **[https://squarelink.com/docs](https://squarelink.com/docs)**
