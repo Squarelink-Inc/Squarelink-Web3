@@ -12,7 +12,7 @@
 
 This is the Squarelink Web3 SDK which enables Squarelink enhancements to standard Web3 JSON RPC requests.
 
-Check out the **[Squarelink Documetation](https://squarelink.com/docs)** for more information, quickstart guides, etc.
+Check out the **[Squarelink Documentation](https://squarelink.com/docs)** for more information, quick-start guides, etc.
 
 ## Installation
 
