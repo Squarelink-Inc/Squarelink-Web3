@@ -42,7 +42,7 @@ export default [{
     // name visible for other scripts
     name: 'npmLibPackageExample',
     // output file location
-    file: 'lib/bundle.min.js',
+    file: 'lib/squarelink.min.js',
     // format of generated JS file, also: esm, and others are available
     format: 'iife',
     // add sourcemaps
