@@ -1,9 +1,8 @@
 /* eslint-disable */
-import utf8 from 'utf8'
 import { RPC_ENDPOINT } from './config'
 import { SqlkError } from './error'
 
-const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=450,height=700,left=-500,top=150`
+const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=425,height=700,left=-500,top=150`
 
 const NETWORKS = [
   'mainnet',
@@ -11,66 +10,6 @@ const NETWORKS = [
   'rinkeby',
   'ropsten'
 ]
-
-/* LODASH FUNCTIONS */
-
-const toString = Object.prototype.toString
-
-function isObjectLike(value) {
-  return typeof value == 'object' && value !== null
-}
-
-function getTag(value) {
-  if (value == null) {
-    return value === undefined ? '[object Undefined]' : '[object Null]'
-  }
-  return toString.call(value)
-}
-
-function isNumber(value) {
-  return typeof value == 'number' ||
-    (isObjectLike(value) && getTag(value) == '[object Number]')
-}
-
-function isString(value) {
-  const type = typeof value
-  return type == 'string' || (type == 'object' && value != null && !Array.isArray(value) && getTag(value) == '[object String]')
-}
-
-function isHexStrict (hex) {
-  return (isString(hex) || isNumber(hex)) && /^(-)?0x[0-9a-f]*$/i.test(hex);
-}
-
-/* END LODASH */
-
-export const _hexToUtf8 = (hex) => {
-    if (!isHexStrict(hex)) throw new Error(`The parameter "${hex}" must be a valid HEX string.`);
-
-    let string = ''
-    let code = 0
-    hex = hex.replace(/^0x/i, '')
-
-    // remove 00 padding from either side
-    hex = hex.replace(/^(?:00)*/, '')
-    hex = hex
-        .split('')
-        .reverse()
-        .join('')
-    hex = hex.replace(/^(?:00)*/, '')
-    hex = hex
-        .split('')
-        .reverse()
-        .join('')
-
-    const l = hex.length;
-
-    for (let i = 0; i < l; i += 2) {
-        code = parseInt(hex.substr(i, 2), 16)
-        string += String.fromCharCode(code)
-    }
-
-    return utf8.decode(string)
-}
 
 export const _serialize = function(obj) {
   var str = []
@@ -88,8 +27,8 @@ export const _popup = function(url) {
     let self = this
     window.addEventListener('message', function(e) {
       if (e.data.origin === 'squarelink') {
-        popup.close()
         window.removeEventListener('message', function() {})
+        popup.close()
         resolve({ ...e.data, origin: undefined })
       }
     }, false)
@@ -115,4 +54,16 @@ export const _getRPCEndpoint = function({ network, client_id }) {
     return network.url
   else
     return `${RPC_ENDPOINT}/${network}/${client_id}`
+}
+
+export const _validateSecureOrigin = function() {
+  const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const isSecureOrigin = location.protocol === 'https:';
+  const isSecure = isLocalhost || isSecureOrigin;
+
+  if (!isSecure) {
+    throw new SqlkError(`Access to the Squarelink Web3 Engine is restricted to secure origins.\nIf this is a development environment please use http://localhost:${
+      location.port
+    } instead.\nOtherwise, please use an SSL certificate.`)
+  }
 }

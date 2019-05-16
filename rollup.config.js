@@ -8,18 +8,18 @@ import builtins from 'rollup-plugin-node-builtins'
 
 // list of plugins used during building process
 const plugins = targets => ([
-  // use Babel to transpile to ES5
-  babel({
-    // ignore node_modules/ in transpilation process
+  replace({
     exclude: 'node_modules/**',
-    // ignore .babelrc (if defined) and use options defined here
-    babelrc: false,
-    // use recommended babel-preset-env without es modules enabled
-    // and with possibility to set custom targets e.g. { node: '8' }
-    presets: [['env', { modules: false, targets }]],
-    // solve a problem with spread operator transpilation https://github.com/rollup/rollup/issues/281
-    plugins: ['babel-plugin-transform-object-rest-spread'],
-    // removes comments from output
+    values: {
+      '<@ENVIRONMENT@>': 'production',
+      '<@VERSION@>': '0.1.1'
+    },
+    delimiters: ['', '']
+  }),
+  babel({
+    exclude: ['node_modules/**'],
+    presets: [['env', { modules: false }]],
+    plugins: ['external-helpers', 'babel-plugin-transform-object-rest-spread'],
     comments: false,
   }),
   resolve(),
@@ -28,17 +28,11 @@ const plugins = targets => ([
   }),
   json(),
   terser(),
-  replace({
-    exclude: 'node_modules/**',
-    values: {
-      ENV: 'production'
-    }
-  }),
   builtins()
 ])
 
 // packages that should be treated as external dependencies, not bundled
-const external = [] // e.g. ['axios']
+const external = ['fetch-ponyfill', 'squarelink-provider-engine'] // e.g. ['axios']
 
 export default [{
   // source file / entrypoint

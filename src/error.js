@@ -3,6 +3,6 @@
 export class SqlkError extends Error {
   constructor(msg) {
     super(msg)
-    this.name = 'SquarelinkError'
+    this.name = '[Squarelink Error]'
   }
 }

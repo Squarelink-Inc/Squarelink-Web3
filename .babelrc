@@ -1,7 +1,0 @@
-{
-  "presets": ["env"],
-  "plugins": [
-    "transform-flow-strip-types",
-    "babel-plugin-rewire"
-  ]
-}

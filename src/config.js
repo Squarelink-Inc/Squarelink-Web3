@@ -1,8 +1,11 @@
 /* eslint-disable */
-export const API_ENDPOINT = process.env.NODE_ENV==='production' ? `https://api.squarelink.com` : `http://localhost:3007`
 
-export const APP_URL = process.env.NODE_ENV==='production' ? `https://app.squarelink.com` : `http://localhost:8082`
+export const VERSION = '<@VERSION@>'
 
-export const RPC_ENDPOINT = process.env.NODE_ENV==='production' ? `https://web3.squarelink.com` : `http://localhost:3012`
+var ENV = '<@ENVIRONMENT@>'
 
-export const VERSION = '0.0.1'
+export const API_ENDPOINT = ENV==='production' ? `https://api.squarelink.com` : `http://localhost:3007`
+
+export const APP_URL = ENV=== 'production' ? `https://app.squarelink.com` : `http://localhost:8082`
+
+export const RPC_ENDPOINT = ENV==='production' ? `https://web3.squarelink.com` : `http://localhost:3012`

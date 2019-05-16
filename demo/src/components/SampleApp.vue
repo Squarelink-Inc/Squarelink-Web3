@@ -45,18 +45,20 @@ export default {
       })
     },
     async signTx() {
-      window.web3.eth.signTransaction({
-        to: '0xf40bed2ffee76b5517fc992cc798ece4c55d8f99',
-        from: '0xc919ac3f8e6ff03349e472d501606fefee300028',//await window.web3.eth.getCoinbase(),
-        value: '1000000000',
-      }).then(txHex => {
-        this.result = txHex
+      window.web3.eth.sendTransaction({
+        to: '0xed19abdc33e92c809376b742d48ed1d935d4faef',
+        from: 0,
+        value: '10000000000',
+        gasPrice: '80000000000'
+      }).then(res => {
+        this.result = res
       }).catch(err => {
         console.log(err)
       })
     },
     async signMsg() {
-      this.result = await window.web3.eth.sign('Hello, my name is Alex', '0xc919ac3f8e6ff03349e472d501606fefee300028').catch(err => {
+      console.log(window.web3.signTypedMessage)
+      this.result = await window.web3.eth.signTypedMessage('Hello, my name is Alex', '0xc919ac3f8e6ff03349e472d501606fefee300028').catch(err => {
         console.log(err)
       })
     },

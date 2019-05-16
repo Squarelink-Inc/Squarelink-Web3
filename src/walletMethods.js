@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { _popup, _serialize, _hexToUtf8 } from './util'
+import { _popup, _serialize } from './util'
 import { SqlkError } from './error'
 import { APP_URL, API_ENDPOINT, VERSION } from './config'
 
@@ -20,7 +20,6 @@ export const _getAccounts = function (client_id) {
 }
 
 export const _signMsg = async function ({ client_id, message, params, method, account }) {
-  message = _hexToUtf8(message)
   let url = `${APP_URL}/msg?client_id=${client_id}&method=${method || 'signMessage'}&version=${VERSION}`
   if (account)
     url = `${url}&account=${account}`
@@ -55,7 +54,7 @@ export const _signTx = async function ({
   if (value) url = `${url}&value=${parseInt(value, 16)}`
   if (from) url = `${url}&from=${from}`
   if (gas) url = `${url}&gas=${parseInt(gas, 16)}`
-  if (gasPrice) url = `${url}&gasPrice=${parseInt(gasPrice, 16)}`
+  if (gasPrice) url = `${url}&gasPrice=${Math.pow(10, -9) * parseInt(gasPrice, 16)}`
   if (nonce) url = `${url}&nonce=${parseInt(nonce, 16)}`
   if (description) url = `${url}&description=${description}`
   if (state) url = `${url}&state=${state}`
