@@ -12,7 +12,7 @@ const bundlePlugins = targets => ([
     exclude: 'node_modules/**',
     values: {
       '<@ENVIRONMENT@>': 'production',
-      '<@VERSION@>': '0.1.1'
+      '<@VERSION@>': '0.1.3'
     },
     delimiters: ['', '']
   }),
