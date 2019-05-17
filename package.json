@@ -1,8 +1,8 @@
 {
   "name": "squarelink",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Squarelink's Web3 library",
-  "main": "lib/squarelink.min.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "NODE_ENV=production ./node_modules/.bin/rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
