@@ -19,12 +19,12 @@ export const _getAccounts = function (client_id) {
   })
 }
 
-export const _signMsg = async function ({ client_id, message, params, method, account }) {
-  let url = `${APP_URL}/msg?client_id=${client_id}&method=${method || 'signMessage'}&version=${VERSION}`
+export const _signMsg = async function ({ client_id, message, method, account }) {
+  let url = `${APP_URL}/msg?client_id=${client_id}&method=${method || 'eth_sign'}&version=${VERSION}`
   if (account)
     url = `${url}&account=${account}`
-  if (method === 'signTypedMessage') {
-    url = `${url}&params=${_serialize(params)}`
+  if (method === 'eth_signTypedData') {
+    url = `${url}&params=${_serialize(message)}`
   } else {
     url = `${url}&msg=${message}`
   }
