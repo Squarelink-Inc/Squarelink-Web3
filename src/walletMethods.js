@@ -25,6 +25,8 @@ export const _signMsg = async function ({ client_id, message, method, account })
     url = `${url}&account=${account}`
   if (method === 'eth_signTypedData') {
     url = `${url}&params=${_serialize(message)}`
+  } else if (method === 'eth_signTypedData_v3') {
+    url = `${url}&paramsV3=${_serialize(message)}`
   } else {
     url = `${url}&msg=${message}`
   }

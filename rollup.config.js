@@ -36,7 +36,7 @@ const packagePlugins = targets => ([
     exclude: 'node_modules/**',
     values: {
       '<@ENVIRONMENT@>': 'production',
-      '<@VERSION@>': '0.1.1'
+      '<@VERSION@>': '0.1.3'
     },
     delimiters: ['', '']
   }),
@@ -59,7 +59,7 @@ const external = [
   'squarelink-provider-engine/subproviders/hooked-wallet',
   'squarelink-provider-engine/subproviders/nonce-tracker',
   'squarelink-provider-engine/subproviders/rpc',
-] // e.g. ['axios']
+]
 
 export default [{
   // source file / entrypoint
@@ -75,7 +75,6 @@ export default [{
     // add sourcemaps
     sourcemap: true,
   },
-  external,
   plugins: bundlePlugins({ node: '8' }),
 }, {
   input: 'src/index.js',
