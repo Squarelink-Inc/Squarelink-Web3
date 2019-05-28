@@ -42,6 +42,64 @@ export default class Squarelink {
     engine.isConnected = () => {
       return true
     }
+
+    engine.send = (payload, callback) => {
+      if (typeof payload === 'string') {
+        return new Promise((resolve, reject) => {
+          engine.sendAsync(
+            {
+              jsonrpc: '2.0',
+              id: 42,
+              method: payload,
+              params: callback || [],
+            },
+            (error, response) => {
+              if (error) {
+                reject(error)
+              } else {
+                resolve(response.result)
+              }
+            },
+          )
+        })
+      }
+
+      if (callback) {
+        engine.sendAsync(payload, callback)
+        return
+      }
+
+      let result = null
+      switch (payload.method) {
+        case 'eth_accounts':
+          result = this.accounts.length ? this.accounts : []
+          break
+
+        case 'eth_coinbase':
+          result = this.accounts.length ? this.accounts[0] : undefined
+          break
+
+        /*case 'net_version':
+          result = this._network
+          break*/
+
+        case 'eth_uninstallFilter':
+          engine.sendAsync(payload, _ => _)
+          result = true
+          break
+
+        default:
+          var message = `The Squarelink Web3 object does not support synchronous methods like ${payload.method} without a callback parameter.`
+          throw new SqlkError(message)
+      }
+      return {
+        id: payload.id,
+        jsonrpc: payload.jsonrpc,
+        result,
+      }
+    }
+
+
     engine.addProvider(new FixtureSubprovider({
       web3_clientVersion: `Squarelink/${VERSION}/javascript`,
       net_listening: true,
@@ -88,7 +146,7 @@ export default class Squarelink {
           from = self.accounts[from]
         _signMsg({
           client_id: self.client_id,
-          method: method || 'eth_signMessage',
+          method: method || 'eth_sign',
           message: data,
           account: from,
         })
@@ -96,19 +154,22 @@ export default class Squarelink {
         .catch(err => cb(err, null))
       },
       signPersonalMessage: async function(payload, cb) {
-        this.signMessage(payload)
-          .then(res => cb(null, res))
-          .catch(err => cb(err, null))
+        this.signMessage({ ...payload, method: 'eth_personalSign' }, (err, res) => {
+          if (err) cb(err, null)
+          else cb(null, res)
+        })
       },
       signTypedMessage: async function(payload, cb) {
-        this.signMessage({ ...payload, method: 'eth_signTypedData' })
-          .then(res => cb(null, res))
-          .catch(err => cb(err, null))
+        this.signMessage({ ...payload, method: 'eth_signTypedData' }, (err, res) => {
+          if (err) cb(err, null)
+          else cb(null, res)
+        })
       },
       signTypedMessageV3: async function(payload, cb) {
-        this.signMessage({ ...payload, method: 'eth_signTypedData_v3' })
-          .then(res => cb(null, res))
-          .catch(err => cb(err, null))
+        this.signMessage({ ...payload, method: 'eth_signTypedData_v3' }, (err, res) => {
+          if (err) cb(err, null)
+          else cb(null, res)
+        })
       },
       getGasPrice: async cb => {
         cb(null, '')
@@ -122,6 +183,18 @@ export default class Squarelink {
     engine.on('error', function(err){
       console.error(err.stack)
     })
+
+    engine.enable = () =>
+      new Promise((resolve, reject) => {
+        engine.sendAsync({ method: 'eth_accounts' }, (error, response) => {
+          if (error) {
+            reject(error)
+          } else {
+            resolve(response.result)
+          }
+        })
+      })
+
     engine.start()
 
     this.engine = engine

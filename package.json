@@ -1,6 +1,6 @@
 {
   "name": "squarelink",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Squarelink's Web3 library",
   "main": "dist/index.js",
   "scripts": {
@@ -32,7 +32,7 @@
   "homepage": "https://squarelink.com/docs",
   "dependencies": {
     "fetch-ponyfill": "^6.0.2",
-    "squarelink-provider-engine": "^15.0.0"
+    "squarelink-provider-engine": "^15.0.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

@@ -12,12 +12,7 @@ const NETWORKS = [
 ]
 
 export const _serialize = function(obj) {
-  var str = []
-  for (var p in obj)
-    if (obj.hasOwnProperty(p)) {
-      str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]))
-    }
-  return str.join('&')
+  return encodeURIComponent(JSON.stringify(obj))
 }
 
 export const _popup = function(url) {
