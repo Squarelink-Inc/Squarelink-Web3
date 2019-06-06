@@ -31,7 +31,6 @@
   },
   "homepage": "https://squarelink.com/docs",
   "dependencies": {
-    "fetch-ponyfill": "^6.0.2",
     "squarelink-provider-engine": "^15.0.2"
   },
   "devDependencies": {
@@ -46,6 +45,7 @@
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-resolve": "^4.2.4",
+    "rollup-plugin-npm": "^2.0.0",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^4.0.4",
     "terser": "^3.17.0"

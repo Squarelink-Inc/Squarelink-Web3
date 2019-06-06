@@ -5,6 +5,19 @@ import json from 'rollup-plugin-json'
 import { terser } from 'rollup-plugin-terser'
 import replace from 'rollup-plugin-replace'
 import builtins from 'rollup-plugin-node-builtins'
+import pkg from './package.json'
+
+// packages that should be treated as external dependencies, not bundled
+const external = [
+  'squarelink-provider-engine',
+  'squarelink-provider-engine/subproviders/cache',
+  'squarelink-provider-engine/subproviders/fixture',
+  'squarelink-provider-engine/subproviders/filters',
+  'squarelink-provider-engine/subproviders/vm',
+  'squarelink-provider-engine/subproviders/hooked-wallet',
+  'squarelink-provider-engine/subproviders/nonce-tracker',
+  'squarelink-provider-engine/subproviders/rpc',
+]
 
 // list of plugins used during building process
 const bundlePlugins = targets => ([
@@ -12,7 +25,7 @@ const bundlePlugins = targets => ([
     exclude: 'node_modules/**',
     values: {
       '<@ENVIRONMENT@>': 'production',
-      '<@VERSION@>': '0.1.3'
+      '<@VERSION@>': pkg.version
     },
     delimiters: ['', '']
   }),
@@ -24,7 +37,7 @@ const bundlePlugins = targets => ([
   }),
   resolve(),
   commonJS({
-    include: 'node_modules/**'
+    //include: 'node_modules/**'
   }),
   json(),
   terser(),
@@ -36,7 +49,7 @@ const packagePlugins = targets => ([
     exclude: 'node_modules/**',
     values: {
       '<@ENVIRONMENT@>': 'production',
-      '<@VERSION@>': '0.1.3'
+      '<@VERSION@>': pkg.version
     },
     delimiters: ['', '']
   }),
@@ -48,38 +61,25 @@ const packagePlugins = targets => ([
   })
 ])
 
-// packages that should be treated as external dependencies, not bundled
-const external = [
-  'fetch-ponyfill',
-  'squarelink-provider-engine',
-  'squarelink-provider-engine/subproviders/cache',
-  'squarelink-provider-engine/subproviders/fixture',
-  'squarelink-provider-engine/subproviders/filters',
-  'squarelink-provider-engine/subproviders/vm',
-  'squarelink-provider-engine/subproviders/hooked-wallet',
-  'squarelink-provider-engine/subproviders/nonce-tracker',
-  'squarelink-provider-engine/subproviders/rpc',
-]
-
 export default [{
   // source file / entrypoint
   input: 'src/index.js',
   // output configuration
   output: {
     // name visible for other scripts
-    name: 'squarelink',
+    name: 'Squarelink',
     // output file location
     file: 'lib/squarelink.min.js',
     // format of generated JS file, also: esm, and others are available
     format: 'iife',
     // add sourcemaps
-    sourcemap: true,
+    sourcemap: false,
   },
   plugins: bundlePlugins({ node: '8' }),
 }, {
   input: 'src/index.js',
   output: {
-    name: 'squarelink',
+    name: 'Squarelink',
     file: 'dist/index.js',
     format: 'cjs'
   },

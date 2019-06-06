@@ -3,18 +3,35 @@ import { _popup, _serialize } from './util'
 import { SqlkError } from './error'
 import { APP_URL, API_ENDPOINT, VERSION } from './config'
 
-const fetch = global.fetch || require('fetch-ponyfill')().fetch
+const fetch = function(url) {
+  return new Promise((resolve, reject) => {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', url)
+    xhr.send()
+    xhr.onload = function() {
+      if (xhr.status != 200) {
+        reject(new SqlkError(`Issue fetching user's accounts`))
+      } else {
+        console.log(xhr.response)
+        resolve(JSON.parse(xhr.response))
+      }
+    }
+    xhr.onerror = function() {
+      reject(new SqlkError(`Issue fetching user's accounts`))
+    }
+  })
+}
 
 export const _getAccounts = function (client_id) {
   return new Promise(async (resolve, reject) => {
     let url = `${APP_URL}/authorize?client_id=${client_id}&scope=[wallets:read]&response_type=token&widget=true&version=${VERSION}`
     _popup(url).then(({ error, result }) => {
       if (error) reject(new SqlkError(error))
-      fetch(`${API_ENDPOINT}/wallets?${_serialize({ access_token: result })}`).then(async (data) => {
-        data = await data.json()
+      fetch(`${API_ENDPOINT}/wallets?access_token=${result}`).then(async (data) => {
+        console.log(data)
         if (!data.success) reject(new SqlkError(data.message || 'Issue fetching accounts, try again later'))
         else resolve(data.wallets.map(w => w.address))
-      })
+      }).catch(err => reject(err))
     })
   })
 }
