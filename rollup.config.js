@@ -75,7 +75,8 @@ export default [{
     // add sourcemaps
     sourcemap: false,
   },
-  plugins: bundlePlugins({ node: '8' }),
+  external,
+  plugins: bundlePlugins({ node: '10' }),
 }, {
   input: 'src/index.js',
   output: {
@@ -84,5 +85,5 @@ export default [{
     format: 'cjs'
   },
   external,
-  plugins: packagePlugins({ node: '8' })
+  plugins: packagePlugins({ node: '10' })
 }]
