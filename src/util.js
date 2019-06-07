@@ -15,6 +15,24 @@ export const _serialize = function(obj) {
   return encodeURIComponent(JSON.stringify(obj))
 }
 
+export const _fetch = function(url) {
+  return new Promise((resolve, reject) => {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', url)
+    xhr.send()
+    xhr.onload = function() {
+      if (xhr.status != 200) {
+        reject(new SqlkError(`Issue fetching user's accounts`))
+      } else {
+        resolve(JSON.parse(xhr.response))
+      }
+    }
+    xhr.onerror = function() {
+      reject(new SqlkError(`Issue fetching user's accounts`))
+    }
+  })
+}
+
 export const _popup = function(url) {
   return new Promise((resolve, reject) => {
     const popup = window.open(url, 'Squarelink', POPUP_PARAMS)
