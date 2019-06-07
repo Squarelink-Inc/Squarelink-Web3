@@ -127,6 +127,7 @@ export default class Squarelink {
           .catch(err => cb(err, null))
       },
       signTransaction: async function(payload, cb) {
+        console.log(payload)
         let { from } = payload
         if (typeof from === 'number')
           from = self.accounts[from]
@@ -138,7 +139,10 @@ export default class Squarelink {
           network: self.network
         })
         .then(res => cb(null, res))
-        .catch(err => cb(err, null))
+        .catch(err => {
+          console.log(err)
+          cb(err, null)
+        })
       },
       signMessage: async function(payload, cb) {
         let { from, data, method } = payload

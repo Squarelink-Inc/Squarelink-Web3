@@ -19,7 +19,6 @@ coverage
 .editorconfig
 
 src
-lib
 demo
 .env
 
