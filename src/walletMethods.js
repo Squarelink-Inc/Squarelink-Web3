@@ -65,7 +65,6 @@ export const _signTx = async function ({
   } else {
     url = `${url}&network=${network}`
   }
-  if (data) url = `${url}&data=${data}`
   return _popup(url).then(({ error, result }) => {
     if (error) throw new SqlkError(error)
     return Promise.resolve(result)
