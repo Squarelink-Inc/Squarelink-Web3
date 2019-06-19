@@ -7,7 +7,7 @@ export default (url) => {
     /* INITIALIZE IFRAME CONTAINER */
     const container = document.createElement('div')
     container.id = `squarelink-iframe-container`
-    container.style = styles.container
+    container.style = inlineStyles.container
 
     /* INITIALIZE HEADER STYLES */
     const style = document.createElement('style')
@@ -24,7 +24,7 @@ export default (url) => {
     const iframe = document.createElement('iframe')
     iframe.src = url
     iframe.id = `squarelink-iframe`
-    iframe.style = styles.iframe()
+    iframe.style = inlineStyles.iframe()
     iframe.onload = function() {
       const pl = document.getElementById('squarelink-preloader')
       pl.parentNode.removeChild(pl)
@@ -56,7 +56,7 @@ export default (url) => {
       const { origin, type, height } = e.data
       if (origin === 'squarelink' && !result) {
         if (type === 'resize') {
-          iframe.style = styles.iframe(`${height}px`, '0')
+          iframe.style = inlineStyles.iframe(`${height}px`, '0')
           return
         }
         result = true
@@ -73,7 +73,7 @@ export default (url) => {
   })
 }
 
-const styles = {
+const inlineStyles = {
   iframe: function (height='150px', border=`3px solid #fff`) {
     return `
       position: absolute;
