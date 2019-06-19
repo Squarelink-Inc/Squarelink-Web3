@@ -1,4 +1,5 @@
 /* eslint-disable */
+import iframe from './iframe'
 import { _popup, _serialize, _fetch } from './util'
 import { SqlkError } from './error'
 import { APP_URL, API_ENDPOINT, VERSION } from './config'
@@ -6,7 +7,7 @@ import { APP_URL, API_ENDPOINT, VERSION } from './config'
 export const _getAccounts = function (client_id) {
   return new Promise(async (resolve, reject) => {
     let url = `${APP_URL}/authorize?client_id=${client_id}&scope=[wallets:read]&response_type=token&widget=true&version=${VERSION}`
-    _popup(url).then(({ error, result }) => {
+    iframe(url).then(({ error, result }) => {
       if (error) reject(new SqlkError(error))
       else {
         _fetch(`${API_ENDPOINT}/wallets?access_token=${result}`).then(async (data) => {
