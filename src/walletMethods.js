@@ -6,7 +6,7 @@ import { APP_URL, API_ENDPOINT, VERSION } from './config'
 
 export const _getAccounts = function (client_id) {
   return new Promise(async (resolve, reject) => {
-    let url = `${APP_URL}/authorize?client_id=${client_id}&scope=[wallets:read]&response_type=token&widget=true&version=0.2.1`
+    let url = `${APP_URL}/authorize?client_id=${client_id}&scope=[wallets:read]&response_type=token&widget=true&version=${VERSION}`
     iframe(url).then(({ error, result }) => {
       if (error) reject(new SqlkError(error))
       else {
