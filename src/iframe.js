@@ -37,12 +37,13 @@ export default (url) => {
     var result = false
     /* INITIALIZE WINDOW CLOSE LISTENERS */
     var closeWindow = function() {
-       result = true
-       resolve({ error: 'Window closed' })
-       container.parentNode.removeChild(container)
-     }
+      result = true
+      resolve({ error: 'Window closed' })
+      container.parentNode.removeChild(container)
+    }
     const close = document.getElementById('squarelink-close-button')
     close.addEventListener('click', closeWindow)
+    container.addEventListener('click', closeWindow)
     document.onkeydown = function(evt) {
       evt = evt || window.event
       if (evt.keyCode == 27) {
@@ -55,7 +56,7 @@ export default (url) => {
       const { origin, type, height } = e.data
       if (origin === 'squarelink' && !result) {
         if (type === 'resize') {
-          iframe.style = styles.iframe(`${height}px`, 'none')
+          iframe.style = styles.iframe(`${height}px`, '0')
           return
         }
         result = true
