@@ -33,30 +33,6 @@ export const _fetch = function(url) {
   })
 }
 
-export const _popup = function(url) {
-  return new Promise((resolve, reject) => {
-    const popup = window.open(url, 'Squarelink', POPUP_PARAMS)
-    var result = false
-    popup.focus()
-    var popupTick = setInterval(function() {
-      if (result) {
-        clearInterval(popupTick)
-      } else if (popup.closed) {
-        clearInterval(popupTick)
-        resolve({ error: 'Window closed' })
-      }
-    }, 100)
-    window.addEventListener('message', function(e) {
-      if (e.data.origin === 'squarelink' && !result) {
-        result = true
-        window.removeEventListener('message', function() {})
-        popup.close()
-        resolve({ ...e.data, origin: undefined })
-      }
-    }, false)
-  })
-}
-
 export const _validateParams = function({ client_id, network }) {
   if (typeof network === 'object') {
     if (!network.url)

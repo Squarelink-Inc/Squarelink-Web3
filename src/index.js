@@ -1,4 +1,7 @@
 /* eslint-disable */
+if (!global._babelPolyfill) {
+	require('babel-polyfill')
+}
 import ProviderEngine from 'squarelink-provider-engine'
 import CacheSubprovider from 'squarelink-provider-engine/subproviders/cache'
 import FixtureSubprovider from 'squarelink-provider-engine/subproviders/fixture'
@@ -127,7 +130,6 @@ export default class Squarelink {
           .catch(err => cb(err, null))
       },
       signTransaction: async function(payload, cb) {
-        console.log(payload)
         let { from } = payload
         if (typeof from === 'number')
           from = self.accounts[from]
