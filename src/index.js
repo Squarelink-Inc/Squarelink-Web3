@@ -130,7 +130,6 @@ export default class Squarelink {
           .catch(err => cb(err, null))
       },
       signTransaction: async function(payload, cb) {
-        console.log(payload)
         let { from } = payload
         if (typeof from === 'number')
           from = self.accounts[from]
