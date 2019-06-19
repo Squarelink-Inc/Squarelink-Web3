@@ -1,12 +1,12 @@
 /* eslint-disable */
 import iframe from './iframe'
-import { _popup, _serialize, _fetch } from './util'
+import { _serialize, _fetch } from './util'
 import { SqlkError } from './error'
 import { APP_URL, API_ENDPOINT, VERSION } from './config'
 
 export const _getAccounts = function (client_id) {
   return new Promise(async (resolve, reject) => {
-    let url = `${APP_URL}/authorize?client_id=${client_id}&scope=[wallets:read]&response_type=token&widget=true&version=${VERSION}`
+    let url = `${APP_URL}/authorize?client_id=${client_id}&scope=[wallets:read]&response_type=token&widget=true&version=0.2.1`
     iframe(url).then(({ error, result }) => {
       if (error) reject(new SqlkError(error))
       else {
@@ -30,7 +30,7 @@ export const _signMsg = async function ({ client_id, message, method, account })
   } else {
     url = `${url}&msg=${message}`
   }
-  return _popup(url).then(({ error, result }) => {
+  return iframe(url).then(({ error, result }) => {
     if (error) throw new SqlkError(error)
     return Promise.resolve(result)
   })
@@ -68,7 +68,7 @@ export const _signTx = async function ({
   } else {
     url = `${url}&network=${network}`
   }
-  return _popup(url).then(({ error, result }) => {
+  return iframe(url).then(({ error, result }) => {
     if (error) throw new SqlkError(error)
     return Promise.resolve(result)
   })
