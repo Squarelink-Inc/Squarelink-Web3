@@ -2,7 +2,7 @@
 import { RPC_ENDPOINT } from './config'
 import { SqlkError } from './error'
 
-const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=425,height=700,left=-500,top=150`
+const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=425,height=350,left=-500,top=150`
 
 const NETWORKS = [
   'mainnet',
@@ -30,6 +30,32 @@ export const _fetch = function(url) {
     xhr.onerror = function() {
       reject(new SqlkError(`Issue fetching user's accounts`))
     }
+  })
+}
+
+export const _popup = function(url) {
+  return new Promise((resolve, reject) => {
+    const popup = window.open('', '_blank', POPUP_PARAMS)
+    popup.location.href = url
+    var result = false
+    popup.focus()
+    var popupTick = setInterval(function() {
+      if (result) {
+        clearInterval(popupTick)
+      } else if (popup.closed) {
+        clearInterval(popupTick)
+        resolve({ error: 'Window closed' })
+      }
+    }, 100)
+    window.addEventListener('message', function(e) {
+      const { origin, height } = e.data
+      if (origin === 'squarelink' && !result) {
+        result = true
+        window.removeEventListener('message', function() {})
+        popup.close()
+        resolve({ ...e.data, origin: undefined, height: undefined })
+      }
+    }, false)
   })
 }
 
