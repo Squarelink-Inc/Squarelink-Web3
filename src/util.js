@@ -2,7 +2,7 @@
 import { RPC_ENDPOINT } from './config'
 import { SqlkError } from './error'
 
-const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=425,height=700,left=-500,top=150`
+const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=425,height=350,left=-500,top=150`
 
 const NETWORKS = [
   'mainnet',
@@ -35,7 +35,8 @@ export const _fetch = function(url) {
 
 export const _popup = function(url) {
   return new Promise((resolve, reject) => {
-    const popup = window.open(url, 'Squarelink', POPUP_PARAMS)
+    const popup = window.open('', '_blank', POPUP_PARAMS)
+    popup.location.href = url
     var result = false
     popup.focus()
     var popupTick = setInterval(function() {
@@ -47,11 +48,12 @@ export const _popup = function(url) {
       }
     }, 100)
     window.addEventListener('message', function(e) {
-      if (e.data.origin === 'squarelink' && !result) {
+      const { origin, height } = e.data
+      if (origin === 'squarelink' && !result) {
         result = true
         window.removeEventListener('message', function() {})
         popup.close()
-        resolve({ ...e.data, origin: undefined })
+        resolve({ ...e.data, origin: undefined, height: undefined })
       }
     }, false)
   })
