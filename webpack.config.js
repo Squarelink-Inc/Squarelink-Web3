@@ -23,7 +23,7 @@ module.exports = [
           loader: 'string-replace-loader',
           options: {
             search: 'module.exports = Squarelink',
-            replace: 'export default Squarelink',
+            replace: 'exports.default = Squarelink',
           }
         }, {
           test: /\.(js)$/,
