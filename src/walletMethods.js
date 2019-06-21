@@ -9,9 +9,14 @@ export const _getAccounts = function (client_id) {
     _popup(url).then(({ error, result }) => {
       if (error) reject(new SqlkError(error))
       else {
-        _fetch(`${API_ENDPOINT}/wallets?access_token=${result}`).then(async (data) => {
-          if (!data.success) reject(new SqlkError(data.message || 'Issue fetching accounts, try again later'))
-          else resolve(data.wallets.map(w => w.address))
+        _fetch(`${API_ENDPOINT}/wallets?access_token=${result}`).then(async ({ success, wallets }) => {
+          if (!success) reject(new SqlkError(data.message || 'Issue fetching accounts, try again later'))
+          else {
+            resolve(([
+              wallets.find(w => w.default),
+              ...wallets.filter(w => !w.default)
+            ]).map(w => w.address))
+          }
         }).catch(err => reject(err))
       }
     })
