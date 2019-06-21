@@ -2,7 +2,7 @@
 import { RPC_ENDPOINT } from './config'
 import { SqlkError } from './error'
 
-const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=425,height=350,left=-500,top=150`
+const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=375,height=350,left=-500,top=150`
 
 const NETWORKS = [
   'mainnet',
