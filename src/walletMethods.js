@@ -60,7 +60,7 @@ export const _signTx = async function ({
   if (value) url = `${url}&value=${parseInt(value, 16)}`
   if (from) url = `${url}&from=${from}`
   if (gas) url = `${url}&gas=${parseInt(gas, 16)}`
-  if (gasPrice) url = `${url}&gasPrice=${Math.pow(10, -9) * parseInt(gasPrice, 16)}`
+  if (gasPrice) url = `${url}&gasPrice=${parseInt(gasPrice, 16)}`
   if (nonce) url = `${url}&nonce=${parseInt(nonce, 16)}`
   if (description) url = `${url}&description=${description}`
   if (state) url = `${url}&state=${state}`

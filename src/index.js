@@ -101,7 +101,7 @@ export default class Squarelink {
 
 
     engine.addProvider(new FixtureSubprovider({
-      web3_clientVersion: `Squarelink/${VERSION}/javascript`,
+      web3_clientVersion: `Squarelink/v${VERSION}/javascript`,
       net_listening: true,
       eth_hashrate: '0x00',
       eth_mining: false,
@@ -137,9 +137,10 @@ export default class Squarelink {
           client_id: self.client_id,
           network: self.network
         })
-        .then(res => cb(null, res))
+        .then(res => {
+          cb(null, res)
+        })
         .catch(err => {
-          console.log(err)
           cb(err, null)
         })
       },
