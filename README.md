@@ -43,7 +43,7 @@ web3.eth.getAccounts().then(console.log)
 
 ### Configuration
 
-`const sqlk = new Squarelink(clientId [, network])`
+`const sqlk = new Squarelink(clientId [, network, opts])`
 
 `Squarelink`-`Object` - Initializes a Squarelink Web3 Provider for you
 
@@ -51,7 +51,9 @@ web3.eth.getAccounts().then(console.log)
 
 - `network`-`String|Object` - Configures the RPC node you're connecting to. Read **[the docs](https://squarelink.com/docs)** for more info. Defaults to 'mainnet'.
 
-#### Examples
+- `opts` - `Object` - Pass additional options to the Squarelink SDK.
+
+### Examples
 
 ```
 // connect to the Ropsten network
@@ -64,6 +66,24 @@ new Squarelink('<CLIENT ID>', {
   chainId: 420
 })
 ```
+
+### Options (`opts`)
+
+- `scope` - `Array` - Request additional scopes to use custom Squarelink functions.
+
+#### Available Scopes:
+- `user` - Equivalent to all scopes below
+- `user:name` - Access to read user's name
+- `user:email` - Access to user's email address
+- `user:security` - Access to read user's security settings
+
+### Additional Functions
+
+- **Squarelink.getName()** - requires the `user` or `user:name` scope
+
+- **Squarelink.getEmail()** - requires the `user` or `user:email` scope
+
+- **Squarelink.getSecuritySettings()** - requires the `user` or `user:security` scope
 
 
 ## Documentation

@@ -3,21 +3,53 @@ import { _popup, _serialize, _fetch } from './util'
 import { SqlkError } from './error'
 import { APP_URL, API_ENDPOINT, VERSION } from './config'
 
-export const _getAccounts = function (client_id) {
+export const _getAccounts = function (client_id, opts = {}) {
+  let scope = {'wallets:read': 1}
+  if (opts.scope && opts.scope.length) {
+    opts.scope.forEach(s => scope[s] = 1)
+  }
+  scope = Object.keys(scope).toString().replace(/ /g, '')
   return new Promise(async (resolve, reject) => {
-    let url = `${APP_URL}/authorize?client_id=${client_id}&scope=[wallets:read]&response_type=token&widget=true&version=${VERSION}`
+    let url = `${APP_URL}/authorize?client_id=${client_id}&scope=[${scope}]&response_type=token&widget=true&version=${VERSION}`
     _popup(url).then(({ error, result }) => {
       if (error) reject(new SqlkError(error))
       else {
-        _fetch(`${API_ENDPOINT}/wallets?access_token=${result}`).then(async ({ success, wallets }) => {
+        let promises = []
+        promises.push(_fetch(`${API_ENDPOINT}/wallets?access_token=${result}`).then(async ({ success, wallets }) => {
           if (!success) reject(new SqlkError(data.message || 'Issue fetching accounts, try again later'))
           else {
-            resolve(([
-              wallets.find(w => w.default),
-              ...wallets.filter(w => !w.default)
-            ]).map(w => w.address))
+            return Promise.resolve({
+              accounts: ([
+                wallets.find(w => w.default),
+                ...wallets.filter(w => !w.default)
+              ]).map(w => w.address)
+            })
           }
-        }).catch(err => reject(err))
+        }).catch(err => reject(err)))
+        if (scope !== 'wallets:read') {
+          promises.push(_fetch(`${API_ENDPOINT}/user?access_token=${result}`).then(async ({ success, ...user }) => {
+            if (!success) reject(new SqlkError(data.message || 'Issue fetching user info, try again later'))
+            else {
+              return Promise.resolve({
+                securitySettings: {
+                  has2fa: user.has_2fa,
+                  hasRecovery: user.has_recovery,
+                  emailVerified: user.email_verified
+                },
+                name: `${user.given_name} ${user.family_name}`,
+                email: user.email
+              })
+            }
+          }).catch(err => reject(err)))
+        }
+        Promise.all(promises).then(results => {
+          let result = {}
+          results.forEach(r => {
+            result = { ...result, ...r }
+          })
+          resolve(result)
+        })
+
       }
     })
   })

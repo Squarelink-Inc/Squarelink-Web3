@@ -11,6 +11,18 @@ const NETWORKS = [
   'ropsten'
 ]
 
+const SCOPES = [
+  'wallets:admin',
+  'wallets:edit',
+  'wallets:create',
+  'wallets:remove',
+  'wallets:read',
+  'user',
+  'user:name',
+  'user:email',
+  'user:security'
+]
+
 export const _serialize = function(obj) {
   return encodeURIComponent(JSON.stringify(obj))
 }
@@ -59,7 +71,15 @@ export const _popup = function(url) {
   })
 }
 
-export const _validateParams = function({ client_id, network }) {
+export const _validateParams = function({ client_id, network, scope }) {
+  if (scope) {
+    if (!Array.isArray(scope))
+      throw new SqlkError(`'scope' must be an Array`)
+    for(let i in scope) {
+      if (!SCOPES.includes(scope[i]))
+        throw new SqlkError(`We do not support the ${scope[i]} scope`)
+    }
+  }
   if (typeof network === 'object') {
     if (!network.url)
       throw new SqlkError('Please provide an RPC endpoint for your custom network')
