@@ -7,17 +7,19 @@ import VmSubprovider from 'squarelink-provider-engine/subproviders/vm'
 import HookedWalletSubprovider from 'squarelink-provider-engine/subproviders/hooked-wallet'
 import NonceSubprovider from 'squarelink-provider-engine/subproviders/nonce-tracker'
 import RpcSubprovider from 'squarelink-provider-engine/subproviders/rpc'
+
 import { VERSION } from './config'
 import { _serialize, _validateParams, _getRPCEndpoint, _validateSecureOrigin } from './util'
 import { _getAccounts, _signTx, _signMsg } from './walletMethods'
 import { SqlkError } from './error'
 
 export default class Squarelink {
-  constructor(client_id, network='mainnet') {
+  constructor(client_id, network='mainnet', opts = {}) {
     this.client_id = client_id
     _validateSecureOrigin()
-    _validateParams({ client_id, network })
+    _validateParams({ client_id, network, scope: opts.scope })
     this.network = network
+    this.scope = opts.scope || []
     this.rpcEndpoint = _getRPCEndpoint({ client_id, network })
     this._initEngine()
   }
@@ -25,6 +27,26 @@ export default class Squarelink {
   getProvider() {
     return this.engine
   }
+
+  /* Custom Squarelink Provider Functions */
+  getEmail() {
+    if (!this.scope.includes('user') && !this.scope.includes('user:email'))
+      throw new SqlkError(`Please enable the user:email scope when initializing Squarelink`)
+    return this.defaultEmail
+  }
+
+  getName() {
+    if (!this.scope.includes('user') && !this.scope.includes('user:name'))
+      throw new SqlkError(`Please enable the user:name scope when initializing Squarelink`)
+    return this.defaultName
+  }
+
+  getSecuritySettings() {
+    if (!this.scope.includes('user') && !this.scope.includes('user:security'))
+      throw new SqlkError(`Please enable the user:security scope when initializing Squarelink`)
+    return this.defaultSecuritySettings
+  }
+  /* End Custom Provider Functions */
 
   changeNetwork(network) {
     const { client_id } = this
@@ -101,7 +123,7 @@ export default class Squarelink {
 
 
     engine.addProvider(new FixtureSubprovider({
-      web3_clientVersion: `Squarelink/${VERSION}/javascript`,
+      web3_clientVersion: `Squarelink/v${VERSION}/javascript`,
       net_listening: true,
       eth_hashrate: '0x00',
       eth_mining: false,
@@ -115,8 +137,11 @@ export default class Squarelink {
       getAccounts: async function(cb){
         if (self.accounts.length) cb(null, self.accounts)
         else {
-          _getAccounts(self.client_id).then(accounts => {
+          _getAccounts(self.client_id, { scope: self.scope }).then(({ email, name, securitySettings, accounts }) => {
             self.accounts = accounts
+            self.defaultEmail = email
+            self.defaultName = name
+            self.defaultSecuritySettings = securitySettings
             cb(null, accounts)
           }).catch(err => cb(err, null))
         }
@@ -137,9 +162,10 @@ export default class Squarelink {
           client_id: self.client_id,
           network: self.network
         })
-        .then(res => cb(null, res))
+        .then(res => {
+          cb(null, res)
+        })
         .catch(err => {
-          console.log(err)
           cb(err, null)
         })
       },
@@ -173,10 +199,7 @@ export default class Squarelink {
           if (err) cb(err, null)
           else cb(null, res)
         })
-      },
-      getGasPrice: async cb => {
-        cb(null, '')
-      },
+      }
     }), 0)
 
     engine.addProvider(new RpcSubprovider({
