@@ -199,10 +199,7 @@ export default class Squarelink {
           if (err) cb(err, null)
           else cb(null, res)
         })
-      },
-      getGasPrice: async cb => {
-        cb(null, '')
-      },
+      }
     }), 0)
 
     engine.addProvider(new RpcSubprovider({

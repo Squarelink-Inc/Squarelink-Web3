@@ -12,7 +12,7 @@
 
 This is the Squarelink Web3 SDK which enables Squarelink enhancements to standard Web3 JSON RPC requests.
 
-Check out the **[Squarelink Documentation](https://squarelink.com/docs)** for more information, quick-start guides, etc.
+Check out the **[Squarelink Documentation](https://docs.squarelink.com)** for more information, quick-start guides, etc.
 
 ## Installation
 
@@ -49,7 +49,7 @@ web3.eth.getAccounts().then(console.log)
 
 - `clientId`-`String` - The Client ID provided to you when you register your DApp in the **[Squarelink Developer Console](https://dev.squarelink.com)**
 
-- `network`-`String|Object` - Configures the RPC node you're connecting to. Read **[the docs](https://squarelink.com/docs)** for more info. Defaults to 'mainnet'.
+- `network`-`String|Object` - Configures the RPC node you're connecting to. Read **[the docs](https://docs.squarelink.com)** for more info. Defaults to 'mainnet'.
 
 - `opts` - `Object` - Pass additional options to the Squarelink SDK.
 
@@ -88,7 +88,7 @@ new Squarelink('<CLIENT ID>', {
 
 ## Documentation
 
-**[https://squarelink.com/docs](https://squarelink.com/docs)**
+**[https://docs.squarelink.com](https://docs.squarelink.com)**
 
 
 ## License

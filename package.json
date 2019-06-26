@@ -31,7 +31,7 @@
   "bugs": {
     "url": "https://github.com/Squarelink-Inc/Squarelink-Web3/issues"
   },
-  "homepage": "https://squarelink.com/docs",
+  "homepage": "https://docs.squarelink.com",
   "dependencies": {
     "babel-runtime": "^6.26.0",
     "squarelink-provider-engine": "^15.0.3"
