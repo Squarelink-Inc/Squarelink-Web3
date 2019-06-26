@@ -79,11 +79,11 @@ new Squarelink('<CLIENT ID>', {
 
 ### Additional Functions
 
-- **Squarelink.getName()** - requires the `user` or `user:name` scope
+- *Squarelink*.**getName()** - requires the `user` or `user:name` scope
 
-- **Squarelink.getEmail()** - requires the `user` or `user:email` scope
+- *Squarelink*.**getEmail()** - requires the `user` or `user:email` scope
 
-- **Squarelink.getSecuritySettings()** - requires the `user` or `user:security` scope
+- *Squarelink*.**getSecuritySettings()** - requires the `user` or `user:security` scope
 
 
 ## Documentation
