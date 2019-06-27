@@ -14,6 +14,13 @@ import { _getAccounts, _signTx, _signMsg } from './walletMethods'
 import { SqlkError } from './error'
 
 export default class Squarelink {
+  /**
+   * @param {string} clientId - Squarelink Client ID
+   * @param {string} [network] - name of the network
+   * @param {object} [network]
+   * @param {string} [network.url] - the RPC Endpoint
+   * @param {string} [network.chainId]
+   */
   constructor(client_id, network='mainnet', opts = {}) {
     this.client_id = client_id
     _validateSecureOrigin()
@@ -24,30 +31,57 @@ export default class Squarelink {
     this._initEngine()
   }
 
+  /**
+   * @returns { Web3Provider } a Web3Provider for use in web3.js
+   */
   getProvider() {
     return this.engine
   }
 
-  /* Custom Squarelink Provider Functions */
+  /* CUSTOM SQUARELINK METHODS */
+
+  /**
+   * @returns {string} the user's email
+   */
   getEmail() {
     if (!this.scope.includes('user') && !this.scope.includes('user:email'))
       throw new SqlkError(`Please enable the user:email scope when initializing Squarelink`)
     return this.defaultEmail
   }
 
+  /**
+   * Returns the name of the authenticated user
+   * @returns {string} the user's name
+   */
   getName() {
     if (!this.scope.includes('user') && !this.scope.includes('user:name'))
       throw new SqlkError(`Please enable the user:name scope when initializing Squarelink`)
     return this.defaultName
   }
 
+  /**
+   * @typedef {Object} SquarelinkSecurity
+   * @property {string} has2fa
+   * @property {string} hasRecovery
+   * @property {string} emailVerified
+   */
+  /**
+   * Returns the security settings of the authenticated user
+   * @returns {SquarelinkSecurity} security settings
+   */
   getSecuritySettings() {
     if (!this.scope.includes('user') && !this.scope.includes('user:security'))
       throw new SqlkError(`Please enable the user:security scope when initializing Squarelink`)
     return this.defaultSecuritySettings
   }
-  /* End Custom Provider Functions */
 
+  /**
+   * Change the connected network
+   * @param {string} network
+   * @param {object} network
+   * @param {string} network.url
+   * @param {string} network.chainId
+   */
   changeNetwork(network) {
     const { client_id } = this
     _validateParams({ client_id, network })
@@ -55,6 +89,8 @@ export default class Squarelink {
     this.rpcEndpoint = _getRPCEndpoint({ client_id, network })
     this._initEngine()
   }
+
+  /* END CUSTOM SQUARELINK METHODS */
 
   _initEngine() {
     var self = this

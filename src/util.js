@@ -23,10 +23,18 @@ const SCOPES = [
   'user:security'
 ]
 
+/**
+ * URL-encodes a request object
+ * @param {object} obj
+ */
 export const _serialize = function(obj) {
   return encodeURIComponent(JSON.stringify(obj))
 }
 
+/**
+ * Creates and executes GET Request
+ * @param {string} url
+ */
 export const _fetch = function(url) {
   return new Promise((resolve, reject) => {
     let xhr = new XMLHttpRequest();
@@ -45,6 +53,10 @@ export const _fetch = function(url) {
   })
 }
 
+/**
+ * Creates Squarelink popup and returns posted result
+ * @param {string} url
+ */
 export const _popup = function(url) {
   return new Promise((resolve, reject) => {
     const popup = window.open('', '_blank', POPUP_PARAMS)
@@ -71,6 +83,12 @@ export const _popup = function(url) {
   })
 }
 
+/**
+ * Validates Squarelink inputs
+ * @param {string} client_id
+ * @param {string|object} [network]
+ * @param {array} [scope]
+ */
 export const _validateParams = function({ client_id, network, scope }) {
   if (scope) {
     if (!Array.isArray(scope))
@@ -93,6 +111,11 @@ export const _validateParams = function({ client_id, network, scope }) {
   }
 }
 
+/**
+ * Gets RPC endpoint from network parameter
+ * @param {string|object} network
+ * @param {string} client_id
+ */
 export const _getRPCEndpoint = function({ network, client_id }) {
   if (typeof network === 'object')
     return network.url
@@ -100,6 +123,9 @@ export const _getRPCEndpoint = function({ network, client_id }) {
     return `${RPC_ENDPOINT}/${network}/${client_id}`
 }
 
+/**
+ * Notifies developer that their app won't work if on an insecure origin
+ */
 export const _validateSecureOrigin = function() {
   const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
   const isSecureOrigin = location.protocol === 'https:';

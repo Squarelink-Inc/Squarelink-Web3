@@ -3,6 +3,11 @@ import { _popup, _serialize, _fetch } from './util'
 import { SqlkError } from './error'
 import { APP_URL, API_ENDPOINT, VERSION } from './config'
 
+/**
+ * Get a list of the users Ethereum accounts
+ * @param {string} clientId
+ * @param {object} opts
+ */
 export const _getAccounts = function (client_id, opts = {}) {
   let scope = {'wallets:read': 1}
   if (opts.scope && opts.scope.length) {
@@ -55,6 +60,13 @@ export const _getAccounts = function (client_id, opts = {}) {
   })
 }
 
+/**
+ * Request a signed message from a user
+ * @param {string} client_id
+ * @param {string} message
+ * @param {string} method
+ * @param {string} account
+ */
 export const _signMsg = async function ({ client_id, message, method, account }) {
   let url = `${APP_URL}/msg?client_id=${client_id}&method=${method || 'eth_sign'}&version=${VERSION}`
   if (account)
@@ -72,6 +84,21 @@ export const _signMsg = async function ({ client_id, message, method, account })
   })
 }
 
+/**
+ * Request a signed transaction from a user 
+ * @param {string} method
+ * @param {string} client_id
+ * @param {string} value
+ * @param {string} to
+ * @param {string} from
+ * @param {string} gas
+ * @param {string} gasPrice
+ * @param {string} nonce
+ * @param {string} network
+ * @param {string} description
+ * @param {string} state
+ * @param {string} data
+ */
 export const _signTx = async function ({
   method,
   client_id,
