@@ -130,7 +130,7 @@ export const _validateSecureOrigin = function() {
   const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
   const isSecureOrigin = location.protocol === 'https:'
   const isChromeExt = location.protocol === 'chrome-extension:'
-  const isSecure = isLocalhost || isSecureOrigin || isChromExt
+  const isSecure = isLocalhost || isSecureOrigin || isChromeExt
 
   if (!isSecure) {
     throw new SqlkError(`Access to the Squarelink Web3 Engine is restricted to secure origins.\nIf this is a development environment please use http://localhost:${
