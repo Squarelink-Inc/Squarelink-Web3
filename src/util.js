@@ -127,9 +127,10 @@ export const _getRPCEndpoint = function({ network, client_id }) {
  * Notifies developer that their app won't work if on an insecure origin
  */
 export const _validateSecureOrigin = function() {
-  const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-  const isSecureOrigin = location.protocol === 'https:';
-  const isSecure = isLocalhost || isSecureOrigin;
+  const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+  const isSecureOrigin = location.protocol === 'https:'
+  const isChromeExt = location.protocol === 'chrome-extension:'
+  const isSecure = isLocalhost || isSecureOrigin || isChromExt
 
   if (!isSecure) {
     throw new SqlkError(`Access to the Squarelink Web3 Engine is restricted to secure origins.\nIf this is a development environment please use http://localhost:${
