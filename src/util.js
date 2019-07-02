@@ -117,6 +117,7 @@ export const _validateParams = function({ client_id, network, scope }) {
  * @param {string} client_id
  */
 export const _getRPCEndpoint = function({ network, client_id }) {
+  return `wss://${network}.infura.io/ws/v3`
   if (typeof network === 'object')
     return network.url
   else
