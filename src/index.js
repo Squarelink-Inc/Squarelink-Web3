@@ -7,6 +7,9 @@ import VmSubprovider from 'squarelink-provider-engine/subproviders/vm'
 import HookedWalletSubprovider from 'squarelink-provider-engine/subproviders/hooked-wallet'
 import NonceSubprovider from 'squarelink-provider-engine/subproviders/nonce-tracker'
 import RpcSubprovider from 'squarelink-provider-engine/subproviders/rpc'
+import FetchSubprovider from 'squarelink-provider-engine/subproviders/fetch'
+import SubscriptionSubprovider from 'squarelink-provider-engine/subproviders/subscriptions'
+import WebSocketSubprovider from 'squarelink-provider-engine/subproviders/websocket'
 
 import { VERSION } from './config'
 import { _serialize, _validateParams, _getRPCEndpoint, _validateSecureOrigin } from './util'
@@ -27,7 +30,10 @@ export default class Squarelink {
     _validateParams({ client_id, network, scope: opts.scope })
     this.network = network
     this.scope = opts.scope || []
-    this.rpcEndpoint = _getRPCEndpoint({ client_id, network })
+    const { rpcUrl, connectionType } = _getRPCEndpoint({ client_id, network })
+    this.connectionType = connectionType
+    this.rpcUrl = rpcUrl
+    this.stopped = true
     this._initEngine()
   }
 
@@ -86,7 +92,9 @@ export default class Squarelink {
     const { client_id } = this
     _validateParams({ client_id, network })
     this.network = network
-    this.rpcEndpoint = _getRPCEndpoint({ client_id, network })
+    const { rpcUrl, connectionType } = _getRPCEndpoint({ client_id, network })
+    this.connectionType = connectionType
+    this.rpcUrl = rpcUrl
     this._initEngine()
   }
 
@@ -100,7 +108,6 @@ export default class Squarelink {
     engine.isConnected = () => {
       return true
     }
-
     engine.send = (payload, callback) => {
       if (typeof payload === 'string') {
         return new Promise((resolve, reject) => {
@@ -166,7 +173,6 @@ export default class Squarelink {
       eth_syncing: true,
     }))
     engine.addProvider(new CacheSubprovider())
-    engine.addProvider(new FilterSubprovider())
     engine.addProvider(new NonceSubprovider())
     engine.addProvider(new VmSubprovider())
     engine.addProvider(new HookedWalletSubprovider({
@@ -238,9 +244,16 @@ export default class Squarelink {
       }
     }), 0)
 
-    engine.addProvider(new RpcSubprovider({
-      rpcUrl: this.rpcEndpoint,
-    }))
+
+    const { rpcUrl, connectionType } = this
+    if (connectionType === 'http') {
+      engine.addProvider(new RpcSubprovider({ rpcUrl }))
+      engine.addProvider(new FetchSubprovider({ rpcUrl }))
+      engine.addProvider(new SubscriptionSubprovider())
+      engine.addProvider(new FilterSubprovider())
+    } else if (connectionType === 'ws') {
+      engine.addProvider(new WebSocketSubprovider({ rpcUrl }))
+    }
 
     engine.on('error', function(err){
       console.error(err.stack)
