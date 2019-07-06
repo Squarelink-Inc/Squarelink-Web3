@@ -7,7 +7,6 @@ import VmSubprovider from 'squarelink-provider-engine/subproviders/vm'
 import HookedWalletSubprovider from 'squarelink-provider-engine/subproviders/hooked-wallet'
 import NonceSubprovider from 'squarelink-provider-engine/subproviders/nonce-tracker'
 import RpcSubprovider from 'squarelink-provider-engine/subproviders/rpc'
-import FetchSubprovider from 'squarelink-provider-engine/subproviders/fetch'
 import SubscriptionSubprovider from 'squarelink-provider-engine/subproviders/subscriptions'
 import WebSocketSubprovider from 'squarelink-provider-engine/subproviders/websocket'
 
