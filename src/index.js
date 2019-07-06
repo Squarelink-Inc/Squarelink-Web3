@@ -12,7 +12,13 @@ import SubscriptionSubprovider from 'squarelink-provider-engine/subproviders/sub
 import WebSocketSubprovider from 'squarelink-provider-engine/subproviders/websocket'
 
 import { VERSION } from './config'
-import { _serialize, _validateParams, _getRPCEndpoint, _validateSecureOrigin } from './util'
+import {
+  _serialize,
+  _validateParams,
+  _getRPCEndpoint,
+  _validateSecureOrigin,
+  _getNetVersion,
+} from './util'
 import { _getAccounts, _signTx, _signMsg } from './walletMethods'
 import { SqlkError } from './error'
 
@@ -29,6 +35,7 @@ export default class Squarelink {
     _validateSecureOrigin()
     _validateParams({ client_id, network, scope: opts.scope })
     this.network = network
+    this.net_version = _getNetVersion(network)
     this.scope = opts.scope || []
     const { rpcUrl, connectionType } = _getRPCEndpoint({ client_id, network })
     this.connectionType = connectionType
@@ -92,6 +99,7 @@ export default class Squarelink {
     const { client_id } = this
     _validateParams({ client_id, network })
     this.network = network
+    this.net_version = _getNetVersion(network)
     const { rpcUrl, connectionType } = _getRPCEndpoint({ client_id, network })
     this.connectionType = connectionType
     this.rpcUrl = rpcUrl
@@ -143,11 +151,6 @@ export default class Squarelink {
 
         case 'net_version':
           result = this.net_version || null
-          break
-
-        case 'eth_uninstallFilter':
-          engine.sendAsync(payload, _ => _)
-          result = true
           break
 
         default:

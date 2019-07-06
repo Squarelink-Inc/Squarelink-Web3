@@ -4,12 +4,12 @@ import { SqlkError } from './error'
 
 const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=375,height=350,left=-500,top=150`
 
-const NETWORKS = [
-  'mainnet',
-  'kovan',
-  'rinkeby',
-  'ropsten'
-]
+const NETWORKS = {
+  'mainnet': 1,
+  'kovan': 42,
+  'rinkeby': 4,
+  'ropsten': 3
+}
 
 const SCOPES = [
   'wallets:admin',
@@ -105,9 +105,8 @@ export const _validateParams = function({ client_id, network, scope }) {
       throw new SqlkError('We do not currently support insecure (http://, ws://) RPC connections. Try updating squarelink to its latest version!')
     else if (network.chainId && (network.chainId !== parseInt(network.chainId) || network.chainId < 0 || network.chainId > 500000))
       throw new SqlkError('Please provide a valid Chain ID')
-  } else {
-    if (!NETWORKS.includes(network))
-      throw new SqlkError('Invalid network provided')
+  } else if (!NETWORKS[network]) {
+    throw new SqlkError('Invalid network provided')
   }
 }
 
@@ -155,4 +154,13 @@ export const _getRPCEndpoint = function({ network, client_id }) {
     default:
       throw new SqlkError(`Unrecognized protocol in "${rpcUrl}"`)
   }
+}
+
+/**
+ * Get the current network version
+ * @param {string|object} network
+ */
+export const _getNetVersion = function(network) {
+  if (typeof network === 'object') return network.chainId || null
+  return NETWORKS[network]
 }
