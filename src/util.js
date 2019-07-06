@@ -101,26 +101,14 @@ export const _validateParams = function({ client_id, network, scope }) {
   if (typeof network === 'object') {
     if (!network.url)
       throw new SqlkError('Please provide an RPC endpoint for your custom network')
-    else if (!network.url.match(/http[s]?:(\/?\/?)[^\s]+/))
-      throw new SqlkError('We do not currently support non-http(s) RPC connections. Try updating squarelink to its latest version!')
+    else if (!network.url.match(/(wss|https){1}?:(\/?\/?)[^\s]+/))
+      throw new SqlkError('We do not currently support insecure (http://, ws://) RPC connections. Try updating squarelink to its latest version!')
     else if (network.chainId && (network.chainId !== parseInt(network.chainId) || network.chainId < 0 || network.chainId > 500000))
       throw new SqlkError('Please provide a valid Chain ID')
   } else {
     if (!NETWORKS.includes(network))
       throw new SqlkError('Invalid network provided')
   }
-}
-
-/**
- * Gets RPC endpoint from network parameter
- * @param {string|object} network
- * @param {string} client_id
- */
-export const _getRPCEndpoint = function({ network, client_id }) {
-  if (typeof network === 'object')
-    return network.url
-  else
-    return `${RPC_ENDPOINT}/${network}/${client_id}`
 }
 
 /**
@@ -136,5 +124,35 @@ export const _validateSecureOrigin = function() {
     throw new SqlkError(`Access to the Squarelink Web3 Engine is restricted to secure origins.\nIf this is a development environment please use http://localhost:${
       location.port
     } instead.\nOtherwise, please use an SSL certificate.`)
+  }
+}
+
+/**
+ * Gets RPC endpoint from network parameter
+ * @param {string|object} network
+ * @param {string} client_id
+ */
+export const _getRPCEndpoint = function({ network, client_id }) {
+  var rpcUrl
+  if (typeof network === 'object')
+    rpcUrl = network.url
+  else
+    rpcUrl = RPC_ENDPOINT.replace('<@NETWORK@>', network)
+  const protocol = rpcUrl.split(':')[0].toLowerCase()
+  switch (protocol) {
+    case 'http':
+    case 'https':
+      return {
+        rpcUrl,
+        connectionType: 'http'
+      }
+    case 'ws':
+    case 'wss':
+      return {
+        rpcUrl,
+        connectionType: 'ws'
+      }
+    default:
+      throw new SqlkError(`Unrecognized protocol in "${rpcUrl}"`)
   }
 }
