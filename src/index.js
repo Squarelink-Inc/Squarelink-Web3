@@ -7,9 +7,18 @@ import VmSubprovider from 'squarelink-provider-engine/subproviders/vm'
 import HookedWalletSubprovider from 'squarelink-provider-engine/subproviders/hooked-wallet'
 import NonceSubprovider from 'squarelink-provider-engine/subproviders/nonce-tracker'
 import RpcSubprovider from 'squarelink-provider-engine/subproviders/rpc'
+import FetchSubprovider from 'squarelink-provider-engine/subproviders/fetch'
+import SubscriptionSubprovider from 'squarelink-provider-engine/subproviders/subscriptions'
+import WebSocketSubprovider from 'squarelink-provider-engine/subproviders/websocket'
 
 import { VERSION } from './config'
-import { _serialize, _validateParams, _getRPCEndpoint, _validateSecureOrigin } from './util'
+import {
+  _serialize,
+  _validateParams,
+  _getRPCEndpoint,
+  _validateSecureOrigin,
+  _getNetVersion,
+} from './util'
 import { _getAccounts, _signTx, _signMsg } from './walletMethods'
 import { SqlkError } from './error'
 
@@ -26,8 +35,12 @@ export default class Squarelink {
     _validateSecureOrigin()
     _validateParams({ client_id, network, scope: opts.scope })
     this.network = network
+    this.net_version = _getNetVersion(network)
     this.scope = opts.scope || []
-    this.rpcEndpoint = _getRPCEndpoint({ client_id, network })
+    const { rpcUrl, connectionType } = _getRPCEndpoint({ client_id, network })
+    this.connectionType = connectionType
+    this.rpcUrl = rpcUrl
+    this.stopped = true
     this._initEngine()
   }
 
@@ -86,7 +99,10 @@ export default class Squarelink {
     const { client_id } = this
     _validateParams({ client_id, network })
     this.network = network
-    this.rpcEndpoint = _getRPCEndpoint({ client_id, network })
+    this.net_version = _getNetVersion(network)
+    const { rpcUrl, connectionType } = _getRPCEndpoint({ client_id, network })
+    this.connectionType = connectionType
+    this.rpcUrl = rpcUrl
     this._initEngine()
   }
 
@@ -100,25 +116,21 @@ export default class Squarelink {
     engine.isConnected = () => {
       return true
     }
-
     engine.send = (payload, callback) => {
       if (typeof payload === 'string') {
         return new Promise((resolve, reject) => {
-          engine.sendAsync(
-            {
-              jsonrpc: '2.0',
-              id: 42,
-              method: payload,
-              params: callback || [],
-            },
-            (error, response) => {
-              if (error) {
-                reject(error)
-              } else {
-                resolve(response.result)
-              }
-            },
-          )
+          engine.sendAsync({
+            jsonrpc: '2.0',
+            id: 42,
+            method: payload,
+            params: callback || [],
+          }, (error, response) => {
+            if (error) {
+              reject(error)
+            } else {
+              resolve(response.result)
+            }
+          })
         })
       }
 
@@ -137,13 +149,8 @@ export default class Squarelink {
           result = this.accounts.length ? this.accounts[0] : undefined
           break
 
-        /*case 'net_version':
-          result = this._network
-          break*/
-
-        case 'eth_uninstallFilter':
-          engine.sendAsync(payload, _ => _)
-          result = true
+        case 'net_version':
+          result = this.net_version || null
           break
 
         default:
@@ -157,19 +164,21 @@ export default class Squarelink {
       }
     }
 
-
-    engine.addProvider(new FixtureSubprovider({
+    /**
+     * START OF MIDDLEWARE DECLARATIONS
+     */
+    const fixtureSubprovider = new FixtureSubprovider({
       web3_clientVersion: `Squarelink/v${VERSION}/javascript`,
       net_listening: true,
       eth_hashrate: '0x00',
       eth_mining: false,
       eth_syncing: true,
-    }))
-    engine.addProvider(new CacheSubprovider())
-    engine.addProvider(new FilterSubprovider())
-    engine.addProvider(new NonceSubprovider())
-    engine.addProvider(new VmSubprovider())
-    engine.addProvider(new HookedWalletSubprovider({
+    })
+    const nonceSubprovider = new NonceSubprovider()
+    const cacheSubprovider = new CacheSubprovider()
+    const vmSubprovider = new VmSubprovider()
+    /* Squarelink ID/Wallet Management */
+    const walletSubprovider = new HookedWalletSubprovider({
       getAccounts: async function(cb){
         if (self.accounts.length) cb(null, self.accounts)
         else {
@@ -236,11 +245,24 @@ export default class Squarelink {
           else cb(null, res)
         })
       }
-    }), 0)
+    })
+    /* ADD MIDDELWARE (PRESERVE ORDER) */
+    engine.addProvider(fixtureSubprovider)
+    engine.addProvider(nonceSubprovider)
+    engine.addProvider(cacheSubprovider)
+    engine.addProvider(vmSubprovider)
+    engine.addProvider(walletSubprovider, 0)
 
-    engine.addProvider(new RpcSubprovider({
-      rpcUrl: this.rpcEndpoint,
-    }))
+    const { rpcUrl, connectionType } = this
+    if (connectionType === 'http') {
+      engine.addProvider(new RpcSubprovider({ rpcUrl }))
+      engine.addProvider(new SubscriptionSubprovider(), 2)
+      engine.addProvider(new FilterSubprovider(), 1)
+    } else if (connectionType === 'ws') {
+      engine.addProvider(new WebSocketSubprovider({ rpcUrl }))
+    }
+
+    /* END OF MIDDLEWARE */
 
     engine.on('error', function(err){
       console.error(err.stack)
