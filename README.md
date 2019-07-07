@@ -43,7 +43,7 @@ web3.eth.getAccounts().then(console.log)
 
 ### Configuration
 
-`const sqlk = new Squarelink(clientId [, network, opts])`
+`const sqlk = new Squarelink(clientId [, network][, opts])`
 
 `Squarelink`-`Object` - Initializes a Squarelink Web3 Provider for you
 
