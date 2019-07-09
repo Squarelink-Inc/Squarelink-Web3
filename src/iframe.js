@@ -1,9 +1,34 @@
-/**
- * Initializes a Squarelink iframe window
- */
-export default (url) => {
-  return new Promise((resolve, reject) => {
+export default class Iframe {
+  /**
+   * @param {string} url
+   */
+  constructor(url) {
+    this.url = url
+    this._createIframe()
+    this._addListeners()
+    this.open = true
+  }
 
+  close() {
+    this.open = false
+    this.container.parentNode.removeChild(container)
+    if (this.onClosed) this.onClosed()
+  }
+
+  _addListeners() {
+    const closeButton = document.getElementById('squarelink-close-button')
+    closeButton.addEventListener('click', this.close)
+    this.container.addEventListener('click', this.close)
+    var self = this
+    document.onkeydown = function(evt) {
+      evt = evt || window.event
+      if (evt.keyCode == 27 && self.open) {
+        self.close()
+      }
+    }
+  }
+
+  _createIframe() {
     /* INITIALIZE IFRAME CONTAINER */
     const container = document.createElement('div')
     container.id = `squarelink-iframe-container`
@@ -33,44 +58,8 @@ export default (url) => {
 
     /* LOAD IFRAME CONTAINER */
     document.body.appendChild(container)
-
-    var result = false
-    /* INITIALIZE WINDOW CLOSE LISTENERS */
-    var closeWindow = function() {
-      result = true
-      resolve({ error: 'Window closed' })
-      container.parentNode.removeChild(container)
-    }
-    const close = document.getElementById('squarelink-close-button')
-    close.addEventListener('click', closeWindow)
-    container.addEventListener('click', closeWindow)
-    document.onkeydown = function(evt) {
-      evt = evt || window.event
-      if (evt.keyCode == 27) {
-        closeWindow()
-      }
-    }
-
-    /* INITIALIZE IFRAME COMMUNICATION */
-    window.addEventListener('message', function(e) {
-      const { origin, type, height } = e.data
-      if (origin === 'squarelink' && !result) {
-        if (type === 'resize') {
-          iframe.style = styles.iframe(`${height}px`, '0')
-          return
-        }
-        result = true
-        window.removeEventListener('message', function() {})
-        container.parentNode.removeChild(container)
-        resolve({
-          ...e.data,
-          origin: undefined,
-          height: undefined,
-          type: undefined
-        })
-      }
-    }, false)
-  })
+    this.container = container
+  }
 }
 
 const styles = {

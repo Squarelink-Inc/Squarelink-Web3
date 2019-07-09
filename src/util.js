@@ -78,6 +78,16 @@ export const _fetch = function(url) {
        }, 100)
      }
 
+     if (iframe) {
+       iframe.onClosed = () => {
+         if (!result) {
+           result = true
+           window.removeEventListener('message', function() {})
+           resolve({ error: 'Window closed' })
+         }
+       }
+     }
+
      window.addEventListener('message', function(e) {
        const { origin, height } = e.data
        if (origin === 'squarelink' && !result) {
