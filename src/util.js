@@ -3,8 +3,6 @@ import { RPC_ENDPOINT } from './config'
 import { SqlkError } from './error'
 import getPopup from './popup'
 
-const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=375,height=350,left=-500,top=150`
-
 const NETWORKS = {
   'mainnet': 1,
   'kovan': 42,
@@ -76,17 +74,15 @@ export const _fetch = function(url) {
            clearInterval(popupTick)
            resolve({ error: 'Window closed' })
          }
-       }, 100)
+       }, 1)
      }
 
      if (iframe) {
-       console.log('here1')
-       iframe.onClosed = () => {
-         console.log('here2')
+       iframe.onClosed = (error) => {
          if (!result) {
            result = true
            window.removeEventListener('message', function() {})
-           resolve({ error: 'Window closed' })
+           resolve({ error: error || 'Window closed' })
          }
        }
      }
@@ -96,8 +92,8 @@ export const _fetch = function(url) {
        if (origin === 'squarelink' && !result) {
          result = true
          window.removeEventListener('message', function() {})
-        if (popup) popup.close()
-        else iframe.close()
+         if (popup) popup.close()
+         else iframe.close()
          resolve({ ...e.data, origin: undefined, height: undefined })
        }
      }, false)

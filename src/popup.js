@@ -14,7 +14,7 @@ const _chromeCheck = ({ popup, url }) =>
   new Promise((resolve, reject) => {
     popup.onload = () => {
       setTimeout(() => {
-        if (popup.screenY === 0 && popup.screenX === 0) {
+        if (!popup.innerHeight || popup.innerHeight <= 0) {
           popup.close()
           resolve({ iframe: new Iframe(url) })
         } else {

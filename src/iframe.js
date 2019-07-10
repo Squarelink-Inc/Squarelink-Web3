@@ -1,3 +1,5 @@
+import { IFRAME_URL } from './config'
+
 export default class Iframe {
   /**
    * @param {string} url
@@ -6,17 +8,18 @@ export default class Iframe {
     this.url = url
     this.open = true
     this._createIframe()
-    this._addListeners()
+    this._addCloseListeners()
+    this._addMessageListeners()
   }
 
   close() {
     if (!this.open) return
     this.container.parentNode.removeChild(this.container)
-    if (this.onClosed) this.onClosed()
+    if (this.onClosed) this.onClosed(this.error)
     this.open = false
   }
 
-  _addListeners() {
+  _addCloseListeners() {
     const closeButton = document.getElementById('squarelink-close-button')
     closeButton.addEventListener('click', () => { this.close() })
     this.container.addEventListener('click', () => { this.close() })
@@ -27,6 +30,22 @@ export default class Iframe {
         self.close()
       }
     }
+  }
+
+  _addMessageListeners() {
+    var self = this
+    window.addEventListener('message', (e) => {
+      const { origin, height, type, error } = e.data
+      if (origin === 'squarelink-resize') {
+        if (type === 'resize') {
+          self.iframe.style = styles.iframe(`${height}px`, 'none')
+          return
+        } else if (type === 'error') {
+          self.error = error
+          self.close()
+        }
+      }
+    }, false)
   }
 
   _createIframe() {
@@ -48,7 +67,7 @@ export default class Iframe {
 
     /* INITIALIZE IFRAME */
     const iframe = document.createElement('iframe')
-    iframe.src = this.url
+    iframe.src = `${IFRAME_URL}/?url=${encodeURI(this.url)}`
     iframe.id = `squarelink-iframe`
     iframe.style = styles.iframe()
     iframe.onload = function() {
@@ -56,6 +75,7 @@ export default class Iframe {
       pl.parentNode.removeChild(pl)
     }
     container.appendChild(iframe)
+    this.iframe = iframe
     this.container = container
 
     /* LOAD IFRAME CONTAINER */
@@ -64,7 +84,7 @@ export default class Iframe {
 }
 
 const styles = {
-  iframe: function (height='150px', border=`3px solid #fff`) {
+  iframe: function (height='200px', border=`3px solid #fff`) {
     return `
       position: absolute;
       height: ${height};
