@@ -1,8 +1,7 @@
 /* eslint-disable */
 import { RPC_ENDPOINT } from './config'
 import { SqlkError } from './error'
-
-const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=375,height=350,left=-500,top=150`
+import getPopup from './popup'
 
 const NETWORKS = {
   'mainnet': 1,
@@ -57,31 +56,51 @@ export const _fetch = function(url) {
  * Creates Squarelink popup and returns posted result
  * @param {string} url
  */
-export const _popup = function(url) {
-  return new Promise((resolve, reject) => {
-    const popup = window.open('', '_blank', POPUP_PARAMS)
-    popup.location.href = url
-    var result = false
-    popup.focus()
-    var popupTick = setInterval(function() {
-      if (result) {
-        clearInterval(popupTick)
-      } else if (popup.closed) {
-        clearInterval(popupTick)
-        resolve({ error: 'Window closed' })
-      }
-    }, 100)
-    window.addEventListener('message', function(e) {
-      const { origin, height } = e.data
-      if (origin === 'squarelink' && !result) {
-        result = true
-        window.removeEventListener('message', function() {})
-        popup.close()
-        resolve({ ...e.data, origin: undefined, height: undefined })
-      }
-    }, false)
-  })
-}
+ export const _popup = function(url) {
+   return new Promise(async (resolve, reject) => {
+     const { popup, iframe, error } = await getPopup(url)
+     if (error) return resolve({ error: 'Window closed' })
+
+     var result = false
+
+     if (popup) {
+       // Poll to check if popup has been closed
+       var popupTick = setInterval(function() {
+         if (result) {
+           clearInterval(popupTick)
+         } else if (popup.closed) {
+           result = true
+           window.removeEventListener('message', function() {})
+           clearInterval(popupTick)
+           resolve({ error: 'Window closed' })
+         }
+       }, 1)
+     }
+
+     if (iframe) {
+       iframe.onClosed = (error) => {
+         if (!result) {
+           result = true
+           window.removeEventListener('message', function() {})
+           resolve({ error: error || 'Window closed' })
+         }
+       }
+     }
+
+     window.addEventListener('message', function(e) {
+       const { origin, height } = e.data
+       if (origin === 'squarelink' && !result) {
+         result = true
+         window.removeEventListener('message', function() {})
+         if (popup) popup.close()
+         else iframe.close()
+         resolve({ ...e.data, origin: undefined, height: undefined })
+       }
+     }, false)
+   }).catch(err => {
+
+   })
+ }
 
 /**
  * Validates Squarelink inputs
