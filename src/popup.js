@@ -5,7 +5,7 @@ const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=n
 const getPopup = (url) => {
   var popup = window.open('', '_blank', POPUP_PARAMS)
   if(!popup || popup.closed || typeof popup.closed=='undefined')
-    return Promise.resolve(new Iframe(url))
+    return Promise.resolve({ iframe: new Iframe(url) })
   // Check if popup is blocked on Chrome
   return _chromeCheck({ popup, url })
 }
@@ -14,14 +14,15 @@ const _chromeCheck = ({ popup, url }) =>
   new Promise((resolve, reject) => {
     popup.onload = () => {
       setTimeout(() => {
-        if (myPopup.screenX === 0) {
-          resolve(getIframe(url))
+        if (popup.screenY === 0 && popup.screenX === 0) {
+          popup.close()
+          resolve({ iframe: new Iframe(url) })
         } else {
           popup.location.href = url
           popup.focus()
           resolve({ popup })
         }
-      }, 0)
+      }, 1)
     }
   })
 

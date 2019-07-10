@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { RPC_ENDPOINT } from './config'
 import { SqlkError } from './error'
+import getPopup from './popup'
 
 const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=375,height=350,left=-500,top=150`
 
@@ -79,7 +80,9 @@ export const _fetch = function(url) {
      }
 
      if (iframe) {
+       console.log('here1')
        iframe.onClosed = () => {
+         console.log('here2')
          if (!result) {
            result = true
            window.removeEventListener('message', function() {})

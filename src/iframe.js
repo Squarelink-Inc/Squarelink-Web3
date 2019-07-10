@@ -4,23 +4,24 @@ export default class Iframe {
    */
   constructor(url) {
     this.url = url
+    this.open = true
     this._createIframe()
     this._addListeners()
-    this.open = true
   }
 
   close() {
-    this.open = false
-    this.container.parentNode.removeChild(container)
+    if (!this.open) return
+    this.container.parentNode.removeChild(this.container)
     if (this.onClosed) this.onClosed()
+    this.open = false
   }
 
   _addListeners() {
     const closeButton = document.getElementById('squarelink-close-button')
-    closeButton.addEventListener('click', this.close)
-    this.container.addEventListener('click', this.close)
+    closeButton.addEventListener('click', () => { this.close() })
+    this.container.addEventListener('click', () => { this.close() })
     var self = this
-    document.onkeydown = function(evt) {
+    document.onkeydown = (evt) => {
       evt = evt || window.event
       if (evt.keyCode == 27 && self.open) {
         self.close()
@@ -47,7 +48,7 @@ export default class Iframe {
 
     /* INITIALIZE IFRAME */
     const iframe = document.createElement('iframe')
-    iframe.src = url
+    iframe.src = this.url
     iframe.id = `squarelink-iframe`
     iframe.style = styles.iframe()
     iframe.onload = function() {
@@ -55,10 +56,10 @@ export default class Iframe {
       pl.parentNode.removeChild(pl)
     }
     container.appendChild(iframe)
+    this.container = container
 
     /* LOAD IFRAME CONTAINER */
     document.body.appendChild(container)
-    this.container = container
   }
 }
 
