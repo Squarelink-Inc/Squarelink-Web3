@@ -15,8 +15,15 @@ export const _getAccounts = function (client_id, opts = {}) {
   }
   scope = Object.keys(scope).toString().replace(/ /g, '')
   return new Promise(async (resolve, reject) => {
-    let url = `${APP_URL}/authorize?client_id=${client_id}&scope=[${scope}]&response_type=token&widget=true&version=${VERSION}`
-    _popup(url).then(({ error, result }) => {
+    let url = `${APP_URL}/authorize?version=${VERSION}`
+    let params = {
+      version: VERSION,
+      client_id,
+      scope: `[${scope}]`,
+      response_type: 'token',
+      widget: true
+    }
+    _popup({ url, params }).then(({ error, result }) => {
       if (error) reject(new SqlkError(error))
       else {
         let promises = []
@@ -68,24 +75,28 @@ export const _getAccounts = function (client_id, opts = {}) {
  * @param {string} account
  */
 export const _signMsg = async function ({ client_id, message, method, account }) {
-  let url = `${APP_URL}/msg?client_id=${client_id}&method=${method || 'eth_sign'}&version=${VERSION}`
-  if (account)
-    url = `${url}&account=${account}`
-  if (method === 'eth_signTypedData') {
-    url = `${url}&params=${_serialize(message)}`
-  } else if (method === 'eth_signTypedData_v3') {
-    url = `${url}&paramsV3=${_serialize(message)}`
-  } else {
-    url = `${url}&msg=${message}`
+  let url = `${APP_URL}/msg?version=${VERSION}`
+  let params = {
+    client_id,
+    method,
+    version: VERSION,
+    account,
   }
-  return _popup(url).then(({ error, result }) => {
+  if (method === 'eth_signTypedData') {
+    params.params = message
+  } else if (method === 'eth_signTypedData_v3') {
+    params.paramsV3 = message
+  } else {
+    params.msg = message
+  }
+  return _popup({ url, params }).then(({ error, result }) => {
     if (error) throw new SqlkError(error)
     return Promise.resolve(result)
   })
 }
 
 /**
- * Request a signed transaction from a user 
+ * Request a signed transaction from a user
  * @param {string} method
  * @param {string} client_id
  * @param {string} value
@@ -113,25 +124,32 @@ export const _signTx = async function ({
   state,
   data,
 }) {
-  let url = `${APP_URL}/tx?widget=true&method=${method}&client_id=${client_id}&version=${VERSION}`
   if (!to) throw new SqlkError('You must provide a recipient `to` for the request')
-  url = `${url}&to=${to}`
-  if (value) url = `${url}&value=${parseInt(value, 16)}`
-  if (from) url = `${url}&from=${from}`
-  if (gas) url = `${url}&gas=${parseInt(gas, 16)}`
-  if (gasPrice) url = `${url}&gasPrice=${parseInt(gasPrice, 16)}`
-  if (nonce) url = `${url}&nonce=${parseInt(nonce, 16)}`
-  if (description) url = `${url}&description=${description}`
-  if (state) url = `${url}&state=${state}`
-  if (data) url = `${url}&data=${data}`
+  let url = `${APP_URL}/tx?widget=true&version=${VERSION}`
+  let params = {
+    method,
+    client_id,
+    version: VERSION,
+    widget: true,
+    to,
+    from,
+    data,
+    state,
+    description,
+  }
+  if (value) params.value = parseInt(value, 16)
+  if (gas) params.gas = parseInt(gas, 16)
+  if (gasPrice) params.gasPrice = parseInt(gasPrice, 16)
+  if (nonce) url = params.nonce = parseInt(nonce, 16)
   // set network
   if (typeof network === 'object') {
-    url = `${url}&network=custom&rpc_url=${network.url}`
-    if (network.chainId) url = `${url}&chain_id=${network.chainId}`
+    params.network = 'custom'
+    params.rpc_url = network.url
+    if (network.chainId) params.chain_id = network.chainId
   } else {
-    url = `${url}&network=${network}`
+    params.network = network
   }
-  return _popup(url).then(({ error, result }) => {
+  return _popup({ url, params }).then(({ error, result }) => {
     if (error) throw new SqlkError(error)
     return Promise.resolve(result)
   })
