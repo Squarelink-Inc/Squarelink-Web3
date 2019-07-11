@@ -4,8 +4,9 @@ export default class Iframe {
   /**
    * @param {string} url
    */
-  constructor(url) {
+  constructor(url, params) {
     this.url = url
+    this.params = params
     this.open = true
     this._createIframe()
     this._addCloseListeners()
@@ -34,15 +35,22 @@ export default class Iframe {
 
   _addMessageListeners() {
     var self = this
+    var paramsSent = false
     window.addEventListener('message', (e) => {
       const { origin, height, type, error } = e.data
-      if (origin === 'squarelink-resize') {
+      if (origin === 'squarelink-iframe') {
         if (type === 'resize') {
           self.iframe.style = styles.iframe(`${height}px`, 'none')
           return
         } else if (type === 'error') {
           self.error = error
           self.close()
+        } else if (type === 'onload' && !paramsSent) {
+          paramsSent = true
+          this.iframe.contentWindow.postMessage({
+            origin: 'squarelink-web3-sdk',
+            params: this.params
+          }, '*')
         }
       }
     }, false)
