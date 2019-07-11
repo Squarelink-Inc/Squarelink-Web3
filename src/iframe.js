@@ -4,8 +4,9 @@ export default class Iframe {
   /**
    * @param {string} url
    */
-  constructor(url) {
+  constructor(url, params) {
     this.url = url
+    this.params = params
     this.open = true
     this._createIframe()
     this._addCloseListeners()
@@ -20,8 +21,6 @@ export default class Iframe {
   }
 
   _addCloseListeners() {
-    const closeButton = document.getElementById('squarelink-close-button')
-    closeButton.addEventListener('click', () => { this.close() })
     this.container.addEventListener('click', () => { this.close() })
     var self = this
     document.onkeydown = (evt) => {
@@ -34,15 +33,22 @@ export default class Iframe {
 
   _addMessageListeners() {
     var self = this
+    var paramsSent = false
     window.addEventListener('message', (e) => {
       const { origin, height, type, error } = e.data
-      if (origin === 'squarelink-resize') {
+      if (origin === 'squarelink-iframe') {
         if (type === 'resize') {
           self.iframe.style = styles.iframe(`${height}px`, 'none')
           return
         } else if (type === 'error') {
           self.error = error
           self.close()
+        } else if (type === 'onload' && !paramsSent) {
+          paramsSent = true
+          this.iframe.contentWindow.postMessage({
+            origin: 'squarelink-web3-sdk',
+            params: this.params
+          }, '*')
         }
       }
     }, false)
@@ -60,10 +66,9 @@ export default class Iframe {
     const head = document.head || document.getElementsByTagName('head')[0]
     head.appendChild(style)
 
-    /* INITIALIZE PRELOADER AND CLOSE BUTTON */
+    /* INITIALIZE PRELOADER */
     const preloader = `<div class="squarelink-preloader" id="squarelink-preloader"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`
-    const closeButton = `<div class="squarelink-close" id="squarelink-close-button"></div>`
-    container.innerHTML = closeButton + preloader
+    container.innerHTML = preloader
 
     /* INITIALIZE IFRAME */
     const iframe = document.createElement('iframe')
@@ -119,37 +124,6 @@ const styles = {
 }
 
 const headerStyles = `
-.squarelink-close {
-  position: absolute;
-  right: 32px;
-  top: 32px;
-  width: 32px;
-  height: 32px;
-  opacity: 0.6;
-  z-index: 2147483649;
-  cursor: pointer;
-  -webkit-transition-duration:0.5s;
-  transition-duration:0.5s;
-}
-.squarelink-close:hover {
-  opacity: 1;
-}
-.squarelink-close:before, .squarelink-close:after {
-  position: absolute;
-  left: 15px;
-  content: ' ';
-  height: 33px;
-  width: 2px;
-  background-color: #fff;
-}
-.squarelink-close:before {
-  transform: rotate(45deg);
-}
-.squarelink-close:after {
-  transform: rotate(-45deg);
-}
-
-
 .squarelink-preloader {
   display: inline-block;
   position: absolute;

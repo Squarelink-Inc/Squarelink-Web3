@@ -88,7 +88,8 @@ export const _fetch = function(url) {
      }
 
      window.addEventListener('message', function(e) {
-       const { origin, height } = e.data
+       const { origin, height, type } = e.data
+       if (type === 'onload') return
        if (origin === 'squarelink' && !result) {
          result = true
          window.removeEventListener('message', function() {})
@@ -97,8 +98,6 @@ export const _fetch = function(url) {
          resolve({ ...e.data, origin: undefined, height: undefined })
        }
      }, false)
-   }).catch(err => {
-
    })
  }
 
