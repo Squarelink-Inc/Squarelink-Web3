@@ -4,30 +4,12 @@ const POPUP_PARAMS = `scrollbars=no,resizable=no,status=no,location=no,toolbar=n
 
 const getPopup = ({ url, params }) => {
   var popup = window.open('', '_blank', POPUP_PARAMS)
-  if(!popup || popup.closed || typeof popup.closed=='undefined')
+  if (!popup || popup.closed || typeof popup.closed=='undefined') {
+    try { popup.close() } catch (err) {}
     return Promise.resolve({ iframe: new Iframe(url, params) })
-  // Check if popup is blocked on Chrome
-  return _chromeCheck({ popup, url, params })
+  }
+  return _loadPopup({ url, popup, params })
 }
-
-const _chromeCheck = ({ popup, url, params }) =>
-  new Promise((resolve, reject) => {
-    var result = false
-    popup.onload = () => {
-      setTimeout(() => {
-        if (result) return
-        result = true
-        if (!popup.innerHeight || popup.innerHeight <= 0) {
-          popup.close()
-          resolve({ iframe: new Iframe(url, params) })
-        } else {
-          _loadPopup({ url, popup, params }).then(popup => {
-            resolve({ popup })
-          })
-        }
-      }, 1)
-    }
-  })
 
 const _loadPopup = ({ url, popup, params }) =>
   new Promise((resolve, reject) => {
@@ -40,7 +22,7 @@ const _loadPopup = ({ url, popup, params }) =>
         result = true
         popup.postMessage({ origin: 'squarelink-web3-sdk', params }, '*')
         popup.focus()
-        resolve(popup)
+        resolve({ popup })
         window.removeEventListener('message', function() {})
       }
     }, false)
