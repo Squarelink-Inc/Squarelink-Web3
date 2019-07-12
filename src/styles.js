@@ -1,4 +1,34 @@
 export default `
+.squarelink-close {
+  position: absolute;
+  right: 50px;
+  top: 30px;
+  width: 10px;
+  height: 25px;
+  opacity: 0.6;
+  z-index: 100;
+  cursor: pointer;
+  -webkit-transition-duration:0.5s;
+  transition-duration:0.5s;
+}
+.squarelink-close:hover {
+  opacity: 1;
+}
+.squarelink-close:before, .squarelink-close:after {
+  position: absolute;
+  left: 15px;
+  content: ' ';
+  height: 30px;
+  width: 3px;
+  background-color: #fff;
+}
+.squarelink-close:before {
+  transform: rotate(45deg);
+}
+.squarelink-close:after {
+  transform: rotate(-45deg);
+}
+
 .squarelink-preloader {
   display: inline-block;
   position: absolute;

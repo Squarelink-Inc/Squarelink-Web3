@@ -73,6 +73,8 @@ export const _fetch = function(url) {
            window.removeEventListener('message', function() {})
            clearInterval(popupTick)
            resolve({ error: 'Window closed' })
+           const preloader = document.getElementById('squarelink-preloader-container')
+           preloader.parentNode.removeChild(preloader)
          }
        }, 1)
      }
@@ -93,8 +95,13 @@ export const _fetch = function(url) {
        if (origin === 'squarelink' && !result) {
          result = true
          window.removeEventListener('message', function() {})
-         if (popup) popup.close()
-         else iframe.close()
+         if (popup) {
+           popup.close()
+           const preloader = document.getElementById('squarelink-preloader-container')
+           preloader.parentNode.removeChild(preloader)
+         } else {
+           iframe.close()
+         }
          resolve({ ...e.data, origin: undefined, height: undefined })
        }
      }, false)
