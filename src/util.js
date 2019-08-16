@@ -1,14 +1,7 @@
 /* eslint-disable */
-import { RPC_ENDPOINT } from './config'
 import { SqlkError } from './error'
 import getPopup from './popup'
-
-const NETWORKS = {
-  'mainnet': 1,
-  'kovan': 42,
-  'rinkeby': 4,
-  'ropsten': 3
-}
+import NETWORKS from './networks'
 
 const SCOPES = [
   'wallets:admin',
@@ -161,7 +154,7 @@ export const _getRPCEndpoint = function({ network, client_id }) {
   if (typeof network === 'object')
     rpcUrl = network.url
   else
-    rpcUrl = RPC_ENDPOINT.replace('<@NETWORK@>', network)
+    rpcUrl = NETWORKS[network].rpcUrl
   const protocol = rpcUrl.split(':')[0].toLowerCase()
   switch (protocol) {
     case 'http':
@@ -187,5 +180,5 @@ export const _getRPCEndpoint = function({ network, client_id }) {
  */
 export const _getNetVersion = function(network) {
   if (typeof network === 'object') return network.chainId || null
-  return NETWORKS[network]
+  return NETWORKS[network].chainId
 }
