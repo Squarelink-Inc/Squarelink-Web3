@@ -140,7 +140,7 @@ export const _signTx = async function ({
   if (value) params.value = parseInt(value, 16)
   if (gas) params.gas = parseInt(gas, 16)
   if (gasPrice) params.gasPrice = parseInt(gasPrice, 16)
-  if (nonce) url = params.nonce = parseInt(nonce, 16)
+  if (nonce) params.nonce = parseInt(nonce, 16)
   // set network
   if (typeof network === 'object') {
     params.network = 'custom'
