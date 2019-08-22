@@ -19,7 +19,7 @@ const packagePlugins = targets => ([
     exclude: 'node_modules/**',
     values: {
       '<@ENVIRONMENT@>': 'production',
-      '<@VERSION@>': pkg.version
+      '<@VERSION@>': pkg.version,
     },
     delimiters: ['', '']
   }),
@@ -38,7 +38,7 @@ const packagePlugins = targets => ([
     ],
     babelrc: false,
     comments: false,
-  })
+  }),
 ])
 
 export default [{
@@ -46,7 +46,7 @@ export default [{
   output: {
     name: 'Squarelink',
     file: 'dist/index.js',
-    format: 'cjs'
+    format: 'esm'
   },
   external,
   plugins: packagePlugins({ node: '8' })
