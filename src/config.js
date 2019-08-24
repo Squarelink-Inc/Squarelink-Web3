@@ -8,4 +8,4 @@ export const API_ENDPOINT = ENV==='production' ? `https://api.squarelink.com` : 
 
 export const APP_URL = ENV=== 'production' ? `https://app.squarelink.com` : `http://localhost:8082`
 
-export const IFRAME_URL = ENV==='production' ? `https://squarelink.com/popup` : `http://localhost:8000/popup`
+export const IFRAME_URL = ENV==='production' ? `https://squarelink.com/popup` : `http://localhost:8085/popup`
