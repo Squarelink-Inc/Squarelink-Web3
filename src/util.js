@@ -1,7 +1,6 @@
 /* eslint-disable */
 import { SqlkError } from './error'
 import getPopup from './popup'
-import NETWORKS from './networks'
 
 const SCOPES = [
   'wallets:admin',
@@ -34,13 +33,13 @@ export const _fetch = function(url) {
     xhr.send()
     xhr.onload = function() {
       if (xhr.status != 200) {
-        reject(new SqlkError(`Issue fetching user's accounts`))
+        reject(new SqlkError(`Issue connecting to Squarelink servers`))
       } else {
         resolve(JSON.parse(xhr.response))
       }
     }
     xhr.onerror = function() {
-      reject(new SqlkError(`Issue fetching user's accounts`))
+      reject(new SqlkError(`Issue connecting to Squarelink servers`))
     }
   })
 }
@@ -123,7 +122,7 @@ export const _validateParams = function({ client_id, network, scope }) {
       throw new SqlkError('We do not currently support insecure (http://, ws://) RPC connections. Try updating squarelink to its latest version!')
     else if (network.chainId && (network.chainId !== parseInt(network.chainId) || network.chainId < 0 || network.chainId > 500000))
       throw new SqlkError('Please provide a valid Chain ID')
-  } else if (!NETWORKS[network]) {
+  } else if (!this.NETWORKS[network]) {
     throw new SqlkError('Invalid network provided')
   }
 }
@@ -145,28 +144,33 @@ export const _validateSecureOrigin = function() {
 }
 
 /**
- * Gets RPC endpoint from network parameter
+ * Gets RPC info from network parameter
  * @param {string|object} network
- * @param {string} client_id
  */
-export const _getRPCEndpoint = function({ network, client_id }) {
+export const _getRPCInfo = function(network) {
   var rpcUrl
+  var skipCache = false
   if (typeof network === 'object')
     rpcUrl = network.url
-  else
-    rpcUrl = NETWORKS[network].rpcUrl
+  else {
+    let netInfo = this.NETWORKS[network]
+    rpcUrl = netInfo.rpcUrl
+    skipCache = netInfo.skipCache !== undefined ? netInfo.skipCache : true
+  }
   const protocol = rpcUrl.split(':')[0].toLowerCase()
   switch (protocol) {
     case 'http':
     case 'https':
       return {
         rpcUrl,
+        skipCache,
         connectionType: 'http'
       }
     case 'ws':
     case 'wss':
       return {
         rpcUrl,
+        skipCache,
         connectionType: 'ws'
       }
     default:
@@ -180,5 +184,5 @@ export const _getRPCEndpoint = function({ network, client_id }) {
  */
 export const _getNetVersion = function(network) {
   if (typeof network === 'object') return network.chainId || null
-  return NETWORKS[network].chainId
+  return this.NETWORKS[network].chainId
 }

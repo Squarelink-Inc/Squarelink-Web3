@@ -18,8 +18,11 @@ const packagePlugins = targets => ([
   replace({
     exclude: 'node_modules/**',
     values: {
-      '<@ENVIRONMENT@>': 'production',
-      '<@VERSION@>': pkg.version,
+      'process.env.VUE_APP_VERSION': pkg.version,
+      'process.env.VUE_APP_API_ENDPOINT': 'https://api.squarelink.com',
+      'process.env.VUE_APP_APP_URL': 'https://app.squarelink.com',
+      'process.env.VUE_APP_IFRAME_URL': 'https://squarelink.com/popup',
+      'process.env.VUE_APP_NETWORK_LIST': 'https://api.squarelink.com/networks',
     },
     delimiters: ['', '']
   }),

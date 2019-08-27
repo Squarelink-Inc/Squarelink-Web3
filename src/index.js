@@ -14,10 +14,11 @@ import { VERSION } from './config'
 import {
   _serialize,
   _validateParams,
-  _getRPCEndpoint,
+  _getRPCInfo,
   _validateSecureOrigin,
   _getNetVersion,
 } from './util'
+import { _loadNetworks, _waitForNetworks } from './networks'
 import { _getAccounts, _signTx, _signMsg } from './walletMethods'
 import { SqlkError } from './error'
 
@@ -30,24 +31,28 @@ export default class Squarelink {
    * @param {string} [network.chainId]
    */
   constructor(client_id, network='mainnet', opts = {}) {
+    _loadNetworks.call(this)
     this.client_id = client_id
-    _validateSecureOrigin()
-    _validateParams({ client_id, network, scope: opts.scope })
     this.network = network
-    this.net_version = _getNetVersion(network)
     this.scope = opts.scope || []
-    const { rpcUrl, connectionType } = _getRPCEndpoint({ client_id, network })
-    this.connectionType = connectionType
-    this.rpcUrl = rpcUrl
     this.stopped = true
-    this._initEngine()
   }
 
   /**
    * @returns { Web3Provider } a Web3Provider for use in web3.js
    */
-  getProvider() {
-    return this.engine
+  async getProvider(cb) {
+    await _waitForNetworks.call(this)
+    const { client_id, network, scope } = this
+    _validateSecureOrigin()
+    _validateParams.call(this, { client_id, network, scope })
+    this.changeNetwork(network)
+    // Support callbacks over promises
+    if (cb) {
+      cb(this.engine)
+      return Promise.resolve()
+    }
+    return Promise.resolve(this.engine)
   }
 
   /* CUSTOM SQUARELINK METHODS */
@@ -96,21 +101,23 @@ export default class Squarelink {
    */
   changeNetwork(network) {
     const { client_id } = this
-    _validateParams({ client_id, network })
+    _validateParams.call(this, { client_id, network })
     this.network = network
-    this.net_version = _getNetVersion(network)
-    const { rpcUrl, connectionType } = _getRPCEndpoint({ client_id, network })
+    this.net_version = _getNetVersion.call(this, network)
+    const { rpcUrl, connectionType, skipCache } = _getRPCInfo.call(this, network)
     this.connectionType = connectionType
     this.rpcUrl = rpcUrl
-    this._initEngine()
+    this._initEngine(skipCache)
   }
 
   /* END CUSTOM SQUARELINK METHODS */
 
-  _initEngine() {
+  _initEngine(skipCache) {
     var self = this
     this.accounts = []
-    var engine = new ProviderEngine()
+    var engine = new ProviderEngine({
+      setSkipCacheFlag: skipCache,
+    })
     engine.isSquarelink = true
     engine.isConnected = () => {
       return true
