@@ -50,7 +50,6 @@ const packagePlugins = targets => ([
 
 export default [{
   input: 'src/index.js',
-  exports: 'named',
   output: {
     name: 'Squarelink',
     file: 'dist/index.js',
