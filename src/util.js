@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { VERSION } from './config'
 import { SqlkError } from './error'
 import getPopup from './popup'
 
@@ -124,6 +125,16 @@ export const _validateParams = function({ client_id, network, scope }) {
       throw new SqlkError('Please provide a valid Chain ID')
   } else if (!this.NETWORKS[network]) {
     throw new SqlkError('Invalid network provided')
+  } else if (!!this.NETWORKS[network].sdkVersion) {
+    const { sdkVersion } = this.NETWORKS[network]
+    let sdkParts = VERSION.split('.')
+    let netParts = sdkVersion.split('.')
+    for (let i = 0; i < 3; i++) {
+      if (parseInt(sdkParts[i]) > parseInt(netParts[i])) return
+      if (parseInt(sdkParts[i]) < parseInt(netParts[i])) {
+        throw new SqlkError(`You need to update Squarelink to squarelink@${sdkVersion} to use that network`)
+      }
+    }
   }
 }
 
