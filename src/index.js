@@ -42,17 +42,19 @@ export default class Squarelink {
    * @returns { Web3Provider } a Web3Provider for use in web3.js
    */
   async getProvider(cb) {
-    await _waitForNetworks.call(this)
-    const { client_id, network, scope } = this
-    _validateSecureOrigin()
-    _validateParams.call(this, { client_id, network, scope })
-    this.changeNetwork(network)
-    // Support callbacks over promises
-    if (cb) {
-      cb(this.engine)
-      return Promise.resolve()
+    try {
+      await _waitForNetworks.call(this)
+      const { client_id, network, scope } = this
+      _validateSecureOrigin()
+      _validateParams.call(this, { client_id, network, scope })
+      this.changeNetwork(network)
+      // Support callbacks over promises
+      if (cb) return cb(this.engine, null)
+      return Promise.resolve(this.engine)
+    } catch (err) {
+      if (cb) return cb(null, err)
+      return Promise.reject(err)
     }
-    return Promise.resolve(this.engine)
   }
 
   /**
