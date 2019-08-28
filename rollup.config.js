@@ -1,3 +1,4 @@
+require('dotenv').config()
 import babel from 'rollup-plugin-babel'
 import replace from 'rollup-plugin-replace'
 import pkg from './package.json'
@@ -13,16 +14,19 @@ const external = [
   'squarelink-provider-engine/subproviders/nonce-tracker',
   'squarelink-provider-engine/subproviders/rpc',
 ]
+let config = {}
+Object.keys(process.env)
+  .filter(k => k.includes('VUE_APP_'))
+  .forEach(k => {
+    config[`process.env.${k}`] = `"${process.env[k]}"`
+  })
 
 const packagePlugins = targets => ([
   replace({
     exclude: 'node_modules/**',
     values: {
-      'process.env.VUE_APP_VERSION': pkg.version,
-      'process.env.VUE_APP_API_ENDPOINT': 'https://api.squarelink.com',
-      'process.env.VUE_APP_APP_URL': 'https://app.squarelink.com',
-      'process.env.VUE_APP_IFRAME_URL': 'https://squarelink.com/popup',
-      'process.env.VUE_APP_NETWORK_LIST': 'https://api.squarelink.com/networks',
+      'process.env.VUE_APP_VERSION': `"${pkg.version}"`,
+      ...config,
     },
     delimiters: ['', '']
   }),
@@ -46,11 +50,14 @@ const packagePlugins = targets => ([
 
 export default [{
   input: 'src/index.js',
+  exports: 'named',
   output: {
     name: 'Squarelink',
     file: 'dist/index.js',
-    format: 'esm'
+    format: 'esm',
+    outputs: 'default',
   },
+
   external,
   plugins: packagePlugins({ node: '8' })
 }]
