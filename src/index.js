@@ -55,43 +55,6 @@ export default class Squarelink {
     return Promise.resolve(this.engine)
   }
 
-  /* CUSTOM SQUARELINK METHODS */
-
-  /**
-   * @returns {string} the user's email
-   */
-  getEmail() {
-    if (!this.scope.includes('user') && !this.scope.includes('user:email'))
-      throw new SqlkError(`Please enable the user:email scope when initializing Squarelink`)
-    return this.defaultEmail
-  }
-
-  /**
-   * Returns the name of the authenticated user
-   * @returns {string} the user's name
-   */
-  getName() {
-    if (!this.scope.includes('user') && !this.scope.includes('user:name'))
-      throw new SqlkError(`Please enable the user:name scope when initializing Squarelink`)
-    return this.defaultName
-  }
-
-  /**
-   * @typedef {Object} SquarelinkSecurity
-   * @property {string} has2fa
-   * @property {string} hasRecovery
-   * @property {string} emailVerified
-   */
-  /**
-   * Returns the security settings of the authenticated user
-   * @returns {SquarelinkSecurity} security settings
-   */
-  getSecuritySettings() {
-    if (!this.scope.includes('user') && !this.scope.includes('user:security'))
-      throw new SqlkError(`Please enable the user:security scope when initializing Squarelink`)
-    return this.defaultSecuritySettings
-  }
-
   /**
    * Change the connected network
    * @param {string} network
@@ -288,5 +251,42 @@ export default class Squarelink {
     engine.start()
 
     this.engine = engine
+  }
+
+  /* CUSTOM SQUARELINK METHODS */
+
+  /**
+   * @returns {string} the user's email
+   */
+  getEmail() {
+    if (!this.scope.includes('user') && !this.scope.includes('user:email'))
+      throw new SqlkError(`Please enable the user:email scope when initializing Squarelink`)
+    return this.defaultEmail
+  }
+
+  /**
+   * Returns the name of the authenticated user
+   * @returns {string} the user's name
+   */
+  getName() {
+    if (!this.scope.includes('user') && !this.scope.includes('user:name'))
+      throw new SqlkError(`Please enable the user:name scope when initializing Squarelink`)
+    return this.defaultName
+  }
+
+  /**
+   * @typedef {Object} SquarelinkSecurity
+   * @property {string} has2fa
+   * @property {string} hasRecovery
+   * @property {string} emailVerified
+   */
+  /**
+   * Returns the security settings of the authenticated user
+   * @returns {SquarelinkSecurity} security settings
+   */
+  getSecuritySettings() {
+    if (!this.scope.includes('user') && !this.scope.includes('user:security'))
+      throw new SqlkError(`Please enable the user:security scope when initializing Squarelink`)
+    return this.defaultSecuritySettings
   }
 }
