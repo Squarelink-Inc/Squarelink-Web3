@@ -123,6 +123,8 @@ export const _validateParams = function({ client_id, network, scope }) {
       throw new SqlkError('We do not currently support insecure (http://, ws://) RPC connections. Try updating squarelink to its latest version!')
     else if (network.chainId && (network.chainId !== parseInt(network.chainId) || network.chainId < 0 || network.chainId > 500000))
       throw new SqlkError('Please provide a valid Chain ID')
+    else if (network.skipCache !== undefined && typeof network.skipCache !== 'boolean')
+      throw new SqlkError('the `skipCache` paramter must be a boolean')
   } else if (!this.NETWORKS[network]) {
     throw new SqlkError('Invalid network provided')
   } else if (!!this.NETWORKS[network].sdkVersion) {
@@ -160,10 +162,11 @@ export const _validateSecureOrigin = function() {
  */
 export const _getRPCInfo = function(network) {
   var rpcUrl
-  var skipCache = false
-  if (typeof network === 'object')
+  var skipCache = true
+  if (typeof network === 'object') {
     rpcUrl = network.url
-  else {
+    skipCache = network.skipCache !== undefined ? network.skipCache : true
+  } else {
     let netInfo = this.NETWORKS[network]
     rpcUrl = netInfo.rpcUrl
     skipCache = netInfo.skipCache !== undefined ? netInfo.skipCache : true
