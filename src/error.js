@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 export class SqlkError extends Error {
   constructor(msg) {
     super(msg)

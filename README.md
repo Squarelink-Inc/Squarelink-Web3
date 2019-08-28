@@ -35,10 +35,14 @@ import Web3 from 'web3'
 import Squarelink from 'squarelink'
 
 const sqlk = new Squarelink('<CLIENT ID>')
-const web3 = new Web3(sqlk.getProvider())
 
-// List Ethereum accounts owned by a Squarelink user
-web3.eth.getAccounts().then(console.log)
+// Use callback or Promise
+sqlk.getProvider(provider => {
+  const web3 = new Web3(provider)
+
+  // List Ethereum accounts owned by a Squarelink user
+  web3.eth.getAccounts().then(console.log)
+})
 ```
 
 ### Configuration
@@ -49,7 +53,7 @@ web3.eth.getAccounts().then(console.log)
 
 - `clientId`-`String` - The Client ID provided to you when you register your DApp in the **[Squarelink Developer Console](https://dev.squarelink.com)**
 
-- `network`-`String|Object` - Configures the RPC node you're connecting to. Read **[the docs](https://docs.squarelink.com)** for more info. Defaults to 'mainnet'.
+- `network`-`String|Object` - Configures the RPC node you're connecting to. See **[a list of our available networks](https://docs.squarelink.com/#available-networks)**. Defaults to 'mainnet'.
 
 - `opts` - `Object` - Pass additional options to the Squarelink SDK.
 
@@ -76,6 +80,11 @@ new Squarelink('<CLIENT ID>', {
 - `user:name` - Access to read user's name
 - `user:email` - Access to user's email address
 - `user:security` - Access to read user's security settings
+
+### Detecting Squarelink
+```
+web3.currentProvider.isSquarelink
+```
 
 ### Additional Functions
 
