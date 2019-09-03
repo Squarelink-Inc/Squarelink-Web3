@@ -3,7 +3,6 @@ import ProviderEngine from 'squarelink-provider-engine'
 import CacheSubprovider from 'squarelink-provider-engine/subproviders/cache'
 import FixtureSubprovider from 'squarelink-provider-engine/subproviders/fixture'
 import FilterSubprovider from 'squarelink-provider-engine/subproviders/filters'
-import VmSubprovider from 'squarelink-provider-engine/subproviders/vm'
 import HookedWalletSubprovider from 'squarelink-provider-engine/subproviders/hooked-wallet'
 import NonceSubprovider from 'squarelink-provider-engine/subproviders/nonce-tracker'
 import RpcSubprovider from 'squarelink-provider-engine/subproviders/rpc'
@@ -147,7 +146,6 @@ export default class Squarelink {
     })
     const nonceSubprovider = new NonceSubprovider()
     const cacheSubprovider = new CacheSubprovider()
-    const vmSubprovider = new VmSubprovider()
     /* Squarelink ID/Wallet Management */
     const walletSubprovider = new HookedWalletSubprovider({
       getAccounts: async function(cb){
@@ -221,7 +219,6 @@ export default class Squarelink {
     engine.addProvider(fixtureSubprovider)
     engine.addProvider(nonceSubprovider)
     engine.addProvider(cacheSubprovider)
-    engine.addProvider(vmSubprovider)
     engine.addProvider(walletSubprovider, 0)
 
     const { rpcUrl, connectionType } = this

@@ -1,6 +1,6 @@
 {
   "name": "squarelink",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Squarelink's Web3 library",
   "main": "dist/index.js",
   "browser": "lib/squarelink.min.js",
