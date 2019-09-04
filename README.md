@@ -98,7 +98,7 @@ web3.currentProvider.isSquarelink
 
 ### Intializing Squarelink Syncrhonously
 
-The `getProvider` function fetches a list of our supported networks and their RPC endpoints from our API. This allows us to remotely change RPC providers for your security and to ensure site reliability.
+The `getProvider` function fetches a list of our supported networks and their RPC endpoints from our API. This allows us to remotely switch RPC providers to ensure 100% uptime and remove faulty/compromised endpoints.
 
 If you are unable to support callbacks/promises, you can use `getProviderSync` which uses hard-coded RPC endpoints. **NOTE**: *we cannot guarantee 100% uptime with this method.*
 
