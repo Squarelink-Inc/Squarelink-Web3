@@ -59,11 +59,11 @@ sqlk.getProvider(provider => {
 
 ### Examples
 
-```
+```javascript
 // connect to the Ropsten network
 new Squarelink('<CLIENT ID>', 'ropsten')
 ```
-```
+```javascript
 // connect to a custom private network
 new Squarelink('<CLIENT ID>', {
   url: 'https://localhost:8545',
@@ -74,6 +74,7 @@ new Squarelink('<CLIENT ID>', {
 ### Options (`opts`)
 
 - `scope` - `Array` - Request additional scopes to use custom Squarelink functions.
+- `useSync` - `Boolean` - See *getProviderSync* below for usage (default = false).
 
 #### Available Scopes:
 - `user` - Equivalent to all scopes below
@@ -94,6 +95,17 @@ web3.currentProvider.isSquarelink
 
 - *Squarelink*.**getSecuritySettings()** - requires the `user` or `user:security` scope
 
+
+### Intializing Squarelink Syncrhonously
+
+The `getProvider` function fetches a list of our supported networks and their RPC endpoints from our API. This allows us to remotely change RPC providers for your security and to ensure site reliability.
+
+If you are unable to support callbacks/promises, you can use `getProviderSync` which uses hard-coded RPC endpoints. **NOTE**: *we cannot guarantee 100% uptime with this method.*
+
+```javascript
+const sqlk = new Squarelink('<CLIENT ID>', 'mainnet', { useSync: true })
+const web3 = new Web(sqlk.getProviderSync())
+```
 
 ## Documentation
 
