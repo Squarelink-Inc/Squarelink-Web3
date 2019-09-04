@@ -2,6 +2,7 @@ require('dotenv').config()
 import babel from 'rollup-plugin-babel'
 import replace from 'rollup-plugin-replace'
 import pkg from './package.json'
+import fs from 'fs'
 
 // packages that should be treated as external dependencies, not bundled
 const external = [
@@ -26,6 +27,7 @@ const packagePlugins = targets => ([
     exclude: 'node_modules/**',
     values: {
       'process.env.VUE_APP_VERSION': `"${pkg.version}"`,
+      '${process.env.VUE_APP_AVAILABLE_NETWORKS}': fs.readFileSync('networks.json'),
       ...config,
     },
     delimiters: ['', '']

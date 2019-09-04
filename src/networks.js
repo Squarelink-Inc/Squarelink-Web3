@@ -22,3 +22,5 @@ export const _waitForNetworks = async function () {
     }, 1)
   })
 }
+
+export const _availableAsSync = JSON.parse(`${process.env.VUE_APP_AVAILABLE_NETWORKS}`)

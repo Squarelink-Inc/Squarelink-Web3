@@ -17,7 +17,7 @@ import {
   _validateSecureOrigin,
   _getNetVersion,
 } from './util'
-import { _loadNetworks, _waitForNetworks } from './networks'
+import { _loadNetworks, _waitForNetworks, _availableAsSync } from './networks'
 import { _getAccounts, _signTx, _signMsg } from './walletMethods'
 import { SqlkError } from './error'
 
@@ -30,7 +30,12 @@ export default class Squarelink {
    * @param {string} [network.chainId]
    */
   constructor(client_id, network='mainnet', opts = {}) {
-    _loadNetworks.call(this)
+    if (opts.useSync) {
+      this.NETWORKS = _availableAsSync
+      this.useSync = true
+    } else {
+      _loadNetworks.call(this)
+    }
     this.client_id = client_id
     this.network = network
     this.scope = opts.scope || []
@@ -42,6 +47,7 @@ export default class Squarelink {
    */
   async getProvider(cb) {
     try {
+      if (this.useSync) throw new SqlkError('Please set `useSync` to false')
       await _waitForNetworks.call(this)
       const { client_id, network, scope } = this
       _validateSecureOrigin()
@@ -54,6 +60,16 @@ export default class Squarelink {
       if (cb) return cb(null, err)
       return Promise.reject(err)
     }
+  }
+
+  getProviderSync() {
+    console.warn('[Squarelink]: getProviderSync is not recommended as we cannot ensure uptime of RPC providers.')
+    if (!this.useSync) throw new SqlkError('Please set `useSync` to true')
+    const { client_id, network, scope } = this
+    _validateSecureOrigin()
+    _validateParams.call(this, { client_id, network, scope })
+    this.changeNetwork(network)
+    return this.engine
   }
 
   /**
