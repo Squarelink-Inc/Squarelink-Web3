@@ -10,10 +10,12 @@ const external = [
   'squarelink-provider-engine/subproviders/cache',
   'squarelink-provider-engine/subproviders/fixture',
   'squarelink-provider-engine/subproviders/filters',
-  'squarelink-provider-engine/subproviders/vm',
   'squarelink-provider-engine/subproviders/hooked-wallet',
   'squarelink-provider-engine/subproviders/nonce-tracker',
   'squarelink-provider-engine/subproviders/rpc',
+  'squarelink-provider-engine/subproviders/websocket',
+  'squarelink-provider-engine/subproviders/subscriptions',
+  'bignumber.js',
 ]
 let config = {}
 Object.keys(process.env)

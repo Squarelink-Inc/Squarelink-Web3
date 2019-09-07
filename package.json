@@ -1,6 +1,6 @@
 {
   "name": "squarelink",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Squarelink's Web3 library",
   "main": "dist/index.js",
   "browser": "lib/squarelink.min.js",
@@ -35,6 +35,7 @@
   "homepage": "https://docs.squarelink.com",
   "dependencies": {
     "babel-runtime": "^6.26.0",
+    "bignumber.js": "^9.0.0",
     "squarelink-provider-engine": "^15.0.5"
   },
   "devDependencies": {

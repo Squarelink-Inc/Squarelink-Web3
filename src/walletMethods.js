@@ -2,6 +2,7 @@
 import { _popup, _serialize, _fetch } from './util'
 import { SqlkError } from './error'
 import { APP_URL, API_ENDPOINT, VERSION } from './config'
+import bn from 'bignumber.js'
 
 /**
  * Get a list of the users Ethereum accounts
@@ -137,10 +138,10 @@ export const _signTx = async function ({
     state,
     description,
   }
-  if (value) params.value = parseInt(value, 16)
-  if (gas) params.gas = parseInt(gas, 16)
-  if (gasPrice) params.gasPrice = parseInt(gasPrice, 16)
-  if (nonce) params.nonce = parseInt(nonce, 16)
+  if (value) params.value = new bn(value, 16).toString()
+  if (gas) params.gas = new bn(gas, 16).toString()
+  if (gasPrice) params.gasPrice = new bn(gasPrice, 16).toString()
+  if (nonce) params.nonce = new bn(nonce, 16).toString()
   // set network
   if (typeof network === 'object') {
     params.network = 'custom'
