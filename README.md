@@ -96,7 +96,7 @@ web3.currentProvider.isSquarelink
 - *Squarelink*.**getSecuritySettings()** - requires the `user` or `user:security` scope
 
 
-### Intializing Squarelink Syncrhonously
+### Initializing Squarelink Synchronously
 
 The `getProvider` function fetches a list of our supported networks and their RPC endpoints from our API. This allows us to remotely switch RPC providers to ensure 100% uptime and remove faulty/compromised endpoints.
 
