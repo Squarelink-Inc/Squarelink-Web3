@@ -19,7 +19,7 @@ import {
   _getNetVersion,
 } from './util'
 import { _loadNetworks, _waitForNetworks, _availableAsSync } from './networks'
-import { _getAccounts, _signTx, _signMsg } from './walletMethods'
+import { _getAccounts, _callAPI, _signTx, _signMsg } from './walletMethods'
 import { SqlkError } from './error'
 
 export default class Squarelink {
@@ -37,10 +37,11 @@ export default class Squarelink {
     } else {
       _loadNetworks.call(this)
     }
+
     this.client_id = client_id
     this.network = network
+    this.token = opts.token
     this.scope = opts.scope || []
-    this.stopped = true
   }
 
   /**
@@ -168,7 +169,15 @@ export default class Squarelink {
     const walletSubprovider = new HookedWalletSubprovider({
       getAccounts: async function(cb){
         if (self.accounts.length) cb(null, self.accounts)
-        else {
+        else if (self.token) {
+          _callAPI(self.token, { scope: self.scope }).then(({ email, name, securitySettings, accounts }) => {
+            self.accounts = accounts
+            self.defaultEmail = email
+            self.defaultName = name
+            self.defaultSecuritySettings = securitySettings
+            cb(null, accounts)
+          }).catch(err => cb(err, null))
+        } else {
           _getAccounts(self.client_id, { scope: self.scope }).then(({ email, name, securitySettings, accounts }) => {
             self.accounts = accounts
             self.defaultEmail = email

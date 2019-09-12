@@ -4,67 +4,71 @@ import { SqlkError } from './error'
 import { APP_URL, API_ENDPOINT, VERSION } from './config'
 import bn from 'bignumber.js'
 
-/**
- * Get a list of the users Ethereum accounts
- * @param {string} clientId
- * @param {object} opts
- */
-export const _getAccounts = function (client_id, opts = {}) {
+export const _callAPI = function(token, opts = {}) {
   let scope = {'wallets:read': 1}
   if (opts.scope && opts.scope.length) {
     opts.scope.forEach(s => scope[s] = 1)
   }
   scope = Object.keys(scope).toString().replace(/ /g, '')
-  return new Promise(async (resolve, reject) => {
-    let url = `${APP_URL}/authorize?version=${VERSION}`
-    let params = {
-      version: VERSION,
-      client_id,
-      scope: `[${scope}]`,
-      response_type: 'token',
-      widget: true
+  let promises = []
+  promises.push(_fetch(`${API_ENDPOINT}/wallets?access_token=${token}`).then(({ success, wallets }) => {
+    if (!success) throw new SqlkError(data.message || 'Issue fetching accounts, try again later')
+    else {
+      return Promise.resolve({
+        accounts: ([
+          wallets.find(w => w.default),
+          ...wallets.filter(w => !w.default)
+        ]).map(w => w.address)
+      })
     }
-    _popup({ url, params }).then(({ error, result }) => {
-      if (error) reject(new SqlkError(error))
+  }))
+  if (scope !== 'wallets:read') {
+    promises.push(_fetch(`${API_ENDPOINT}/user?access_token=${token}`).then(({ success, ...user }) => {
+      if (!success) throw new SqlkError(data.message || 'Issue fetching user info, try again later')
       else {
-        let promises = []
-        promises.push(_fetch(`${API_ENDPOINT}/wallets?access_token=${result}`).then(async ({ success, wallets }) => {
-          if (!success) reject(new SqlkError(data.message || 'Issue fetching accounts, try again later'))
-          else {
-            return Promise.resolve({
-              accounts: ([
-                wallets.find(w => w.default),
-                ...wallets.filter(w => !w.default)
-              ]).map(w => w.address)
-            })
-          }
-        }).catch(err => reject(err)))
-        if (scope !== 'wallets:read') {
-          promises.push(_fetch(`${API_ENDPOINT}/user?access_token=${result}`).then(async ({ success, ...user }) => {
-            if (!success) reject(new SqlkError(data.message || 'Issue fetching user info, try again later'))
-            else {
-              return Promise.resolve({
-                securitySettings: {
-                  has2fa: user.has_2fa,
-                  hasRecovery: user.has_recovery,
-                  emailVerified: user.email_verified
-                },
-                name: `${user.given_name} ${user.family_name}`,
-                email: user.email
-              })
-            }
-          }).catch(err => reject(err)))
-        }
-        Promise.all(promises).then(results => {
-          let result = {}
-          results.forEach(r => {
-            result = { ...result, ...r }
-          })
-          resolve(result)
+        return Promise.resolve({
+          securitySettings: {
+            has2fa: user.has_2fa,
+            hasRecovery: user.has_recovery,
+            emailVerified: user.email_verified
+          },
+          name: `${user.given_name} ${user.family_name}`,
+          email: user.email
         })
-
       }
+    }))
+  }
+  return Promise.all(promises).then(results => {
+    let result = {}
+    results.forEach(r => {
+      result = { ...result, ...r }
     })
+    return Promise.resolve(result)
+  })
+}
+
+/**
+ * Get a list of the users Ethereum accounts
+ * @param {string} clientId
+ * @param {object} opts
+ */
+export const _getAccounts = function(client_id, opts = {}) {
+  let scope = {'wallets:read': 1}
+  if (opts.scope && opts.scope.length) {
+    opts.scope.forEach(s => scope[s] = 1)
+  }
+  scope = Object.keys(scope).toString().replace(/ /g, '')
+  let url = `${APP_URL}/authorize?version=${VERSION}`
+  let params = {
+    version: VERSION,
+    client_id,
+    scope: `[${scope}]`,
+    response_type: 'token',
+    widget: true
+  }
+  return _popup({ url, params }).then(({ error, result }) => {
+    if (error) return Promise.reject(new SqlkError(error))
+    return _callAPI(result, opts)
   })
 }
 

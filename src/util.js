@@ -33,7 +33,9 @@ export const _fetch = function(url) {
     xhr.open('GET', url)
     xhr.send()
     xhr.onload = function() {
-      if (xhr.status != 200) {
+      if (xhr.status === 403) {
+        reject(new SqlkError(`You are not authorized to access that resource`))
+      } else if (xhr.status !== 200) {
         reject(new SqlkError(`Issue connecting to Squarelink servers`))
       } else {
         resolve(JSON.parse(xhr.response))
