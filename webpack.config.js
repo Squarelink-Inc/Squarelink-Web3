@@ -2,7 +2,6 @@ var webpack = require('webpack')
 const path = require('path')
 
 var external = [
-  //'babel-runtime',
   'squarelink-provider-engine',
   'bignumber.js',
 ]
