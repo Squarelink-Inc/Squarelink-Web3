@@ -1,10 +1,21 @@
 var webpack = require('webpack')
-const path = require('path');
+const path = require('path')
+
+var external = [
+  //'babel-runtime',
+  'squarelink-provider-engine',
+  'bignumber.js',
+]
+
+var include = []
+for (i in external) {
+  include.push(path.resolve(__dirname, `node_modules/${external[i]}`))
+}
 
 module.exports = [
   {
     mode: 'production',
-    entry: ['./dist/index.js'],
+    entry: ['./es/index.js'],
     node: {
       fs: 'empty',
     },
@@ -20,16 +31,9 @@ module.exports = [
       rules: [
         {
           test: /\.(js)$/,
-          loader: 'string-replace-loader',
-          options: {
-            search: 'module.exports = Squarelink',
-            replace: 'exports.default = Squarelink',
-          }
-        }, {
-          test: /\.(js)$/,
           include: [
             path.resolve(__dirname, 'src'),
-            path.resolve(__dirname, 'node_modules/squarelink-provider-engine')
+            ...include,
           ],
           use: 'babel-loader',
         },

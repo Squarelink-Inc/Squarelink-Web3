@@ -1,5 +1,7 @@
 require('dotenv').config()
+require('babel-polyfill')
 import babel from 'rollup-plugin-babel'
+import babelrc from 'babelrc-rollup'
 import replace from 'rollup-plugin-replace'
 import pkg from './package.json'
 import fs from 'fs'
@@ -15,6 +17,21 @@ const external = [
   'squarelink-provider-engine/subproviders/rpc',
   'squarelink-provider-engine/subproviders/websocket',
   'squarelink-provider-engine/subproviders/subscriptions',
+  'squarelink-provider-engine/subproviders/gasprice',
+  'babel-runtime/helpers/extends',
+  'babel-runtime/regenerator',
+  'babel-runtime/core-js/promise',
+  'babel-runtime/helpers/asyncToGenerator',
+  'babel-runtime/helpers/classCallCheck',
+  'babel-runtime/helpers/createClass',
+  'babel-runtime/helpers/typeof',
+  'babel-runtime/core-js/json/stringify',
+  'babel-runtime/helpers/objectWithoutProperties',
+  'babel-runtime/helpers/toConsumableArray',
+  'babel-runtime/core-js/object/keys',
+  'babel-runtime/core-js/object/get-prototype-of',
+  'babel-runtime/helpers/possibleConstructorReturn',
+  'babel-runtime/helpers/inherits',
   'bignumber.js',
 ]
 let config = {}
@@ -35,32 +52,20 @@ const packagePlugins = targets => ([
     delimiters: ['', '']
   }),
   babel({
-    exclude: ['node_modules/**'],
-    presets: [['env', { modules: false }]],
-    plugins: [
-      'external-helpers',
-      'babel-plugin-transform-object-rest-spread',
-      ["transform-runtime", {
-        "helpers": false, // defaults to true
-        "polyfill": false, // defaults to true
-        "regenerator": true, // defaults to true
-        "moduleName": "babel-runtime" // defaults to "babel-runtime"
-      }]
-    ],
-    babelrc: false,
-    comments: false,
+    ...babelrc(),
+    runtimeHelpers: true,
   }),
 ])
 
 export default [{
   input: 'src/index.js',
-  output: {
-    name: 'Squarelink',
-    file: 'dist/index.js',
+  output: [{
+    file: pkg.module,
     format: 'esm',
-    outputs: 'default',
-  },
-
+  }, {
+    file: pkg.main,
+    format: 'cjs',
+  }],
   external,
   plugins: packagePlugins({ node: '8' })
 }]
