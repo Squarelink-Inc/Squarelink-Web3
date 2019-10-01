@@ -7,9 +7,15 @@
   "browser": "lib/squarelink.min.js",
   "scripts": {
     "networks": "curl -X GET https://api.squarelink.com/networks > networks.json",
-    "build": "npm run networks && NODE_ENV=production ./node_modules/.bin/rollup -c && npm run build:min && export NODE_ENV=development",
+    "build": "npm run networks && npm run clean && npm run build:lib && npm run build:es && npm run insert-version && npm run build:umd && npm run dts-bundle",
     "build:min": "webpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rimraf umd lib es",
+    "build:lib": "tsc --outDir lib --module commonjs",
+    "build:es": "tsc --outDir es --module es2015",
+    "build:umd": "webpack",
+    "dts-bundle": "dts-bundle --name umd/index --main es --outputAsModuleFolder",
+    "set-env": "node replace.js"
   },
   "files": [
     "/dist"
@@ -39,27 +45,16 @@
     "squarelink-provider-engine": "^15.0.5"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.5",
-    "babel-plugin-add-module-exports": "^1.0.0",
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-polyfill": "^6.1.4",
-    "babel-preset-env": "^1.7.0",
-    "babelrc-rollup": "^3.0.0",
+    "babel-core": "6.26.0",
+    "babel-loader": "7.1.4",
+    "babel-plugin-add-module-exports": "1.0.0",
+    "babel-plugin-transform-runtime": "6.23.0",
+    "babel-preset-env": "1.7.0",
     "dotenv": "^8.1.0",
-    "eslint": "^5.16.0",
-    "fs": "0.0.1-security",
-    "rimraf": "^3.0.0",
-    "rollup": "^1.11.3",
-    "rollup-plugin-babel": "^3.0.7",
-    "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-resolve": "^4.2.4",
-    "rollup-plugin-replace": "^2.2.0",
-    "rollup-plugin-terser": "^4.0.4",
-    "string-replace-loader": "^2.1.1",
+    "dts-bundle": "0.7.3",
+    "replace-in-file": "3.4.3",
+    "rimraf": "2.6.1",
+    "typescript": "3.2.2",
     "webpack": "4.28.3",
     "webpack-cli": "^3.3.8"
   }

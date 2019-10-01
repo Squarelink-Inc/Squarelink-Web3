@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "target": "es5",
+    "module": "commonjs",
+    "rootDir": "src",
+    "outDir": ".code",
+    "newLine": "LF",
+    "lib": ["dom", "es2017"],
+    "moduleResolution": "node",
+    "importHelpers": false,
+    "pretty": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    "noUnusedLocals": true,
+    "strictNullChecks": false
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}

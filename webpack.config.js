@@ -1,26 +1,15 @@
-var webpack = require('webpack')
-const path = require('path')
+const path = require('path');
 
-var external = [
-  'squarelink-provider-engine',
-  'bignumber.js',
-]
-
-var include = []
-for (i in external) {
-  include.push(path.resolve(__dirname, `node_modules/${external[i]}`))
-}
-
-module.exports = [
+export default () => [
   {
     mode: 'production',
-    entry: ['./es/index.js'],
+    entry: './es/index.js',
     node: {
       fs: 'empty',
     },
     output: {
-      path: path.resolve(__dirname, './lib'),
-      filename: 'squarelink.min.js',
+      path: path.resolve(__dirname, './umd'),
+      filename: 'index.js',
       libraryTarget: 'umd',
       globalObject: 'this',
       library: 'Squarelink',
@@ -32,7 +21,7 @@ module.exports = [
           test: /\.(js)$/,
           include: [
             path.resolve(__dirname, 'src'),
-            ...include,
+            path.resolve(__dirname, 'node_modules/squarelink-provider-engine'),
           ],
           use: 'babel-loader',
         },

@@ -1,4 +1,4 @@
-/* eslint-disable */
+// @ts-ignore
 import ProviderEngine from 'squarelink-provider-engine'
 import CacheSubprovider from 'squarelink-provider-engine/subproviders/cache'
 import FixtureSubprovider from 'squarelink-provider-engine/subproviders/fixture'
