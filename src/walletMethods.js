@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { _popup, _serialize, _fetch } from './util'
 import { SqlkError } from './error'
 import { APP_URL, API_ENDPOINT, VERSION } from './config'

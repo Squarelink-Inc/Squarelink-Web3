@@ -6,16 +6,13 @@
   "module": "es/index.js",
   "browser": "lib/squarelink.min.js",
   "scripts": {
-    "networks": "curl -X GET https://api.squarelink.com/networks > networks.json",
-    "build": "npm run networks && npm run clean && npm run build:lib && npm run build:es && npm run insert-version && npm run build:umd && npm run dts-bundle",
-    "build:min": "webpack",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf umd lib es",
-    "build:lib": "tsc --outDir lib --module commonjs",
+    "build": "npm run networks && npm run clean && npm run build:cjs && npm run build:es && npm run replace && npm run build:lib",
+    "build:cjs": "tsc --outDir dist --module commonjs",
     "build:es": "tsc --outDir es --module es2015",
-    "build:umd": "webpack",
-    "dts-bundle": "dts-bundle --name umd/index --main es --outputAsModuleFolder",
-    "set-env": "node replace.js"
+    "build:lib": "webpack",
+    "networks": "curl -X GET https://api.squarelink.com/networks > networks.json",
+    "replace": "babel-node replace.js"
   },
   "files": [
     "/dist"
@@ -48,6 +45,7 @@
     "babel-core": "6.26.0",
     "babel-loader": "7.1.4",
     "babel-plugin-add-module-exports": "1.0.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-runtime": "6.23.0",
     "babel-preset-env": "1.7.0",
     "dotenv": "^8.1.0",

@@ -8,8 +8,8 @@ export default () => [
       fs: 'empty',
     },
     output: {
-      path: path.resolve(__dirname, './umd'),
-      filename: 'index.js',
+      path: path.resolve(__dirname, './lib'),
+      filename: 'squarelink.min.js',
       libraryTarget: 'umd',
       globalObject: 'this',
       library: 'Squarelink',
