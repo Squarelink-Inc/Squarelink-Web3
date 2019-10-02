@@ -1,5 +1,5 @@
 import { _fetch } from './util'
-import { NETWORK_LIST } from './config'
+import { NETWORK_LIST, AVAILABLE_NETWORKS } from './config'
 import { SqlkError } from './error'
 
 export const _loadNetworks = function () {
@@ -23,4 +23,4 @@ export const _waitForNetworks = async function () {
   })
 }
 
-export const _availableAsSync = JSON.parse(`${process.env.VUE_APP_AVAILABLE_NETWORKS}`)
+export const _availableAsSync = JSON.parse(AVAILABLE_NETWORKS)
