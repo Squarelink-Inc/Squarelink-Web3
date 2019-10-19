@@ -40,8 +40,8 @@ const sqlk = new Squarelink('<CLIENT ID>')
 sqlk.getProvider(provider => {
   const web3 = new Web3(provider)
 
-  // List Ethereum accounts owned by a Squarelink user
-  web3.eth.getAccounts().then(console.log)
+  // Use the web3 library as you would normally!
+  web3.currentProvider.enable()
 })
 ```
 
