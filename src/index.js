@@ -167,24 +167,7 @@ export default class Squarelink {
     /* Squarelink ID/Wallet Management */
     const walletSubprovider = new HookedWalletSubprovider({
       getAccounts: async function(cb){
-        if (self.accounts.length) cb(null, self.accounts)
-        else if (self.token) {
-          _callAPI(self.token, { scope: self.scope }).then(({ email, name, securitySettings, accounts }) => {
-            self.accounts = accounts
-            self.defaultEmail = email
-            self.defaultName = name
-            self.defaultSecuritySettings = securitySettings
-            cb(null, accounts)
-          }).catch(err => cb(err, null))
-        } else {
-          _getAccounts(self.client_id, { scope: self.scope }).then(({ email, name, securitySettings, accounts }) => {
-            self.accounts = accounts
-            self.defaultEmail = email
-            self.defaultName = name
-            self.defaultSecuritySettings = securitySettings
-            cb(null, accounts)
-          }).catch(err => cb(err, null))
-        }
+        cb(null, self.accounts)
       },
       getCoinbase: async function(cb) {
         this.getAccounts()
@@ -192,6 +175,10 @@ export default class Squarelink {
           .catch(err => cb(err, null))
       },
       signTransaction: async function(payload, cb) {
+        if (!self.accounts.length) {
+          cb(new SqlkError('No accounts available'), null)
+          return
+        }
         let { from } = payload
         if (typeof from === 'number')
           from = self.accounts[from]
@@ -210,6 +197,10 @@ export default class Squarelink {
         })
       },
       signMessage: async function(payload, cb) {
+        if (!self.accounts.length) {
+          cb(new SqlkError('No accounts available'), null)
+          return
+        }
         let { from, data, method } = payload
         if (typeof from === 'number')
           from = self.accounts[from]
@@ -223,18 +214,30 @@ export default class Squarelink {
         .catch(err => cb(err, null))
       },
       signPersonalMessage: async function(payload, cb) {
+        if (!self.accounts.length) {
+          cb(new SqlkError('No accounts available'), null)
+          return
+        }
         this.signMessage({ ...payload, method: 'eth_personalSign' }, (err, res) => {
           if (err) cb(err, null)
           else cb(null, res)
         })
       },
       signTypedMessage: async function(payload, cb) {
+        if (!self.accounts.length) {
+          cb(new SqlkError('No accounts available'), null)
+          return
+        }
         this.signMessage({ ...payload, method: 'eth_signTypedData' }, (err, res) => {
           if (err) cb(err, null)
           else cb(null, res)
         })
       },
       signTypedMessageV3: async function(payload, cb) {
+        if (!self.accounts.length) {
+          cb(new SqlkError('No accounts available'), null)
+          return
+        }
         this.signMessage({ ...payload, method: 'eth_signTypedData_v3' }, (err, res) => {
           if (err) cb(err, null)
           else cb(null, res)
@@ -265,13 +268,23 @@ export default class Squarelink {
 
     engine.enable = () =>
       new Promise((resolve, reject) => {
-        engine.sendAsync({ method: 'eth_accounts' }, (error, response) => {
-          if (error) {
-            reject(error)
-          } else {
-            resolve(response.result)
-          }
-        })
+        if (self.token) {
+          _callAPI(self.token, { scope: self.scope }).then(({ email, name, securitySettings, accounts }) => {
+            self.accounts = accounts
+            self.defaultEmail = email
+            self.defaultName = name
+            self.defaultSecuritySettings = securitySettings
+            resolve(accounts)
+          }).catch(err => reject(err, null))
+        } else {
+          _getAccounts(self.client_id, { scope: self.scope }).then(({ email, name, securitySettings, accounts }) => {
+            self.accounts = accounts
+            self.defaultEmail = email
+            self.defaultName = name
+            self.defaultSecuritySettings = securitySettings
+            resolve(accounts)
+          }).catch(err => reject(err))
+        }
       })
 
     engine.start()
